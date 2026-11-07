@@ -39,7 +39,7 @@ import inspect
 import math
 import re
 import statistics
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import date
 from typing import Any, Awaitable, Callable
 
@@ -309,7 +309,19 @@ def depmap_lines_for_disease(depmap: list[dict], disease: str) -> list[dict]:
 # Check
 # ---------------------------------------------------------------------------
 
-async def run_check(asset: Asset, emit: Emit) -> CheckResult:
+async def run_check(asset: Asset, emit: Emit, *, breakdown: dict | None = None,
+                    gate_priors: bool = True) -> CheckResult:
+    """Lane entry point.
+
+    `breakdown`: pass a dict to receive the exact score terms (used by /eval).
+    `gate_priors`: when True (default, product behaviour) the published base-rate and
+    genetic-support priors are only used if published on or before `as_of`. Backtests may
+    pass False to treat them as methodology constants: they carry no information about any
+    individual asset and apply identically to every asset, so they cannot create separation
+    between outcome groups, but a pre-2015 cutoff would otherwise leave the score with no
+    base rate and no weight for genetic evidence. With False the prior rows carry no
+    evidence_date and the choice is recorded in `missing`.
+    """
     async def say(status: str, message: str) -> None:
         await _maybe_await(emit(StatusEvent(check_id=CHECK_ID, status=status, message=message, timestamp=utc_now())))
 
@@ -563,25 +575,34 @@ async def run_check(asset: Asset, emit: Emit) -> CheckResult:
             missing.append(f"ChEMBL has no mechanism target for {chembl_id}; potency not assessed")
 
     # ---- Priors ----
-    base_prior = pick_prior(BASE_RATE_PRIORS, as_of)
+    prior_cutoff = as_of if gate_priors else None
+    if not gate_priors and as_of is not None:
+        missing.append("Published priors (phase base rate, genetic relative success) were applied as "
+                       "methodology constants and NOT gated by as_of; they are identical for every asset")
+    base_prior = pick_prior(BASE_RATE_PRIORS, prior_cutoff)
     prior_ids: list[str] = []
     stage_key = base_key_for_stage(stage)
     if base_prior:
         f.base_rate = base_prior.values[stage_key]
         prior_ids.append(add_row(f"sci-prior-{base_prior.key}", base_prior.claim, base_prior.source,
-                                 base_prior.url, PRIOR_LICENCE, utc_now(), evidence_date=base_prior.published))
+                                 base_prior.url, PRIOR_LICENCE, utc_now(),
+                                 evidence_date=base_prior.published if gate_priors else None))
     else:
         missing.append("No phase base-rate study published before as_of; neutral 0.5 prior used")
-    gen_prior = pick_prior(GENETIC_PRIORS, as_of)
+    gen_prior = pick_prior(GENETIC_PRIORS, prior_cutoff)
     if gen_prior:
         f.genetic_rs = gen_prior.values["rs"]
         if any(f.datatypes.get(k, 0) > 0 for k in HUMAN_GENETIC):
             prior_ids.append(add_row(f"sci-prior-{gen_prior.key}", gen_prior.claim, gen_prior.source,
-                                     gen_prior.url, PRIOR_LICENCE, utc_now(), evidence_date=gen_prior.published))
+                                     gen_prior.url, PRIOR_LICENCE, utc_now(),
+                                     evidence_date=gen_prior.published if gate_priors else None))
     else:
         missing.append("No genetic-support study published before as_of; genetics not up-weighted")
 
     score, terms = compute_score(f)
+    if breakdown is not None:
+        breakdown.update({"base_rate": f.base_rate, "stage_key": base_key_for_stage(stage), "stage": stage,
+                          "terms": list(terms), "features": asdict(f)})
     labels = {"p1": "Phase I->II", "p2": "Phase II->III", "p3": "Phase III->filing", "nda": "filing->approval"}
     breakdown = ", ".join(f"{name} {val:+.2f}" for name, val in terms)
     score_ids = prior_ids + (["sci-ot-assoc"] if any(r.id == "sci-ot-assoc" for r in rows) else [])
