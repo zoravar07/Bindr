@@ -151,6 +151,30 @@ async def cached_get_json(
     return await cache.fetch(url, params, _fetch, as_of=as_of)
 
 
+async def cached_get_text(
+    url: str,
+    params: dict[str, Any] | None = None,
+    *,
+    as_of: date | str | None = None,
+    cache: JsonCache | None = None,
+    timeout: float = 60.0,
+    headers: dict[str, str] | None = None,
+) -> CachedResponse:
+    """GET a text resource (e.g. a PDB coordinate file) live, through the cache.
+
+    `.data` is the response body as a string. Non-2xx responses raise and are not cached.
+    """
+    cache = cache or default_cache()
+
+    async def _fetch() -> Any:
+        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as c:
+            resp = await c.get(url, params=params, headers=headers)
+            resp.raise_for_status()
+            return resp.text
+
+    return await cache.fetch(f"TEXT {url}", params, _fetch, as_of=as_of)
+
+
 async def cached_post_json(
     url: str,
     body: dict[str, Any],
