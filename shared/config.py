@@ -53,6 +53,8 @@ def _env_float(name: str, default: float) -> float:
 GEMINI_API_KEY: str | None = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 CACHE_DIR: Path = Path(os.getenv("PREMORTEM_CACHE_DIR", str(REPO_ROOT / ".cache")))
 CHECK_TIMEOUT_S: float = _env_float("PREMORTEM_CHECK_TIMEOUT_S", 45.0)
+# Analyst rejections, kept across runs so the system remembers where it was wrong.
+REJECTIONS_PATH: Path = Path(os.getenv("PREMORTEM_REJECTIONS_PATH", str(REPO_ROOT / "data" / "rejections.jsonl")))
 
 
 def model_id(role: str) -> str:

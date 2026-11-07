@@ -11,7 +11,8 @@ __pycache__/
 venv/
 *.egg-info/
 
-# Caches and build output
+# Caches, runtime data and build output
+data/
 .cache/
 node_modules/
 dist/
