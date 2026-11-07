@@ -143,6 +143,16 @@ def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str
             out.append(f"[{notes[i]}]")
         return "".join(out)
 
+    id_re = re.compile(r"(?<![\w-])(" + "|".join(re.escape(r.id) for r in sorted(ledger, key=lambda r: -len(r.id)))
+                       + r")(?![\w-])") if len(ledger) else None
+
+    def linkify(text: str) -> str:
+        """Turn ledger IDs written into prose into footnote markers."""
+        if id_re is None:
+            return text
+        text = id_re.sub(lambda m: cite([m.group(1)]), text)
+        return re.sub(r"\(\s*((?:\[\d+\][,;\s]*)+)\)", lambda m: re.sub(r"[,;\s]", "", m.group(1)), text)
+
     a = verdict.asset
     lines: list[str] = []
     lines.append(f"# Pre-Mortem diligence memo: {a.drug}")
@@ -158,7 +168,7 @@ def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str
     lines.append(f"## Call: {verdict.overall_risk.replace('_', ' ').upper()} risk (combined score {score}, "
                  f"{verdict.overall_confidence} confidence)")
     lines.append("")
-    lines.append(verdict.overall_summary)
+    lines.append(linkify(verdict.overall_summary))
     lines.append("")
 
     lines.append("| Check | Failure risk | Status | Confidence |")
@@ -166,6 +176,11 @@ def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str
     for s in verdict.check_summaries:
         shown = f"{s.score:.2f}" if s.status in ("complete", "partial") else "not assessed"
         lines.append(f"| {s.check_id} | {shown} | {s.status} | {s.confidence} |")
+    lines.append("")
+    for s in verdict.check_summaries:
+        if s.status in ("complete", "partial"):
+            tail = "" if id_re and id_re.search(s.summary) else " " + cite(s.ledger_row_ids)
+            lines.append(f"- **{s.check_id}**: {linkify(s.summary)}{tail.rstrip()}")
     lines.append("")
 
     live_flags = [f for f in verdict.red_flags if f.review_status != "rejected"]
@@ -175,7 +190,9 @@ def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str
         lines.append("None survived review.")
     for f in live_flags:
         who = f" (added by {f.added_by})" if f.added_by else ""
-        lines.append(f"{f.rank}. **{f.title}** · {f.check_id}, {f.severity}{who}. {f.text} {cite(f.ledger_row_ids)}")
+        body = linkify(f.text)
+        tail = cite([i for i in f.ledger_row_ids if f"[{notes.get(i)}]" not in body])
+        lines.append(f"{f.rank}. **{f.title}** · {f.check_id}, {f.severity}{who}. {body} {tail}".rstrip())
     lines.append("")
 
     rejected = [f for f in verdict.red_flags if f.review_status == "rejected"]

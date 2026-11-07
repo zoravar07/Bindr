@@ -194,3 +194,15 @@ async def test_live_verdict_respects_ledger():
     assert v.overall_score == pytest.approx(0.85)
     for f in v.red_flags:
         assert f.ledger_row_ids and all(i in ledger for i in f.ledger_row_ids)
+
+
+async def test_memo_turns_inline_ledger_ids_into_footnotes():
+    results = _results()
+    ledger = _ledger(results)
+    v = await write_verdict(ASSET, results, ledger, gemini=GeminiClient(api_key=""))
+    v = v.model_copy(update={"overall_summary": "Genetics are weak (sci-1) and a trial stopped (trial-1, sci-2)."})
+    v = apply_signoff(v, SignOffAction(reviewer="zoro", action="accept"), ledger)
+    memo = export_diligence_memo(v, ledger)
+    assert "(sci-1)" not in memo and "(trial-1," not in memo
+    assert "weak [1] and a trial stopped [2][3]." in memo
+    assert "https://example.org/sci-2" in memo  # inline-only citation still listed in Sources

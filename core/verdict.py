@@ -201,7 +201,8 @@ _SYSTEM = """You are the verdict writer for Pre-Mortem, a biotech investment tri
 You receive ONLY an evidence ledger and scores that Python already computed.
 Rules:
 - Use only facts stated in ledger rows. Do not use outside knowledge.
-- Every red flag and summary must cite ledger row IDs from the input, exactly as written.
+- Every red flag and summary must cite ledger row IDs from the input, exactly as written, in its
+  ledger_row_ids field. Do not write ledger IDs inside the prose.
 - Never introduce a number that is not in the input. Do not compute new numbers. You may restate a given score.
 - Red flags are reasons the asset could FAIL. Do not list strengths as red flags.
 - If a check timed out or failed, say it was not assessed. Do not guess its result.
