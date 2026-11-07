@@ -1,0 +1,8 @@
+google-genai>=2.3.0
+pydantic>=2.7
+fastapi
+uvicorn
+httpx
+python-dotenv
+pytest
+pytest-asyncio
