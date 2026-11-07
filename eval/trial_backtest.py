@@ -637,6 +637,10 @@ async def run_trial_backtest(cohorts: Cohorts | None = None, *, k: int | None = 
             "prevalence is reported, not assumed.",
             "Cohorts are the earliest-registered matching trials (sort=StudyFirstPostDate:asc) up to a "
             "cap, not a random sample of the registry.",
+            "These numbers measure the reference graveyard-similarity scorer defined in this module, not "
+            "the product lane in checks/trial. That lane scores an asset against its indication's trial "
+            "landscape rather than predicting one trial's fate, so it cannot be evaluated by a per-trial "
+            "termination benchmark and is not what this backtest reports.",
         ],
         "licence": CTGOV_LICENCE,
     }
