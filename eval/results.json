@@ -1,0 +1,4154 @@
+{
+ "generated_at": "2026-11-07T18:27:40.111096+00:00",
+ "run_date": "2026-11-07",
+ "backtests": {
+  "science": {
+   "backtest": "science",
+   "name": "Dead Science",
+   "test": "20 historical target-disease programmes (10 failed in Phase 2/3 for lack of efficacy, 10 approved), scored under each programme's own as_of cutoff",
+   "headline_mode": "methodology",
+   "headline_metric": "separation of mean risk score, failed minus approved",
+   "headline_value": 0.1269,
+   "headline_auroc": 0.79,
+   "headline_p_value": 0.02815,
+   "baseline_metric": "constant published base rate (cannot rank)",
+   "baseline_value": 0.0,
+   "baseline_auroc": 0.5,
+   "modes": {
+    "methodology": {
+     "gate_priors": false,
+     "model": {
+      "n_scored": 20,
+      "n_not_scored": 0,
+      "comparison": {
+       "positive_label": "failed",
+       "negative_label": "approved",
+       "n_positive": 10,
+       "n_negative": 10,
+       "mean_positive": 0.6497,
+       "mean_negative": 0.5228,
+       "median_positive": 0.6682,
+       "median_negative": 0.4862,
+       "stdev_positive": 0.0841,
+       "stdev_negative": 0.104,
+       "separation_of_means": 0.1269,
+       "auroc": 0.79,
+       "mann_whitney_u": 79.0,
+       "mann_whitney_p": 0.02815,
+       "mann_whitney_method": "two-sided normal approximation with tie correction"
+      },
+      "precision_at_10": 0.8,
+      "recall_at_10": 0.8,
+      "ranking": [
+       {
+        "rank": 1,
+        "programme_id": "ager-alzheimer",
+        "outcome": "failed",
+        "score": 0.711
+       },
+       {
+        "rank": 2,
+        "programme_id": "grm5-fragile-x",
+        "outcome": "failed",
+        "score": 0.711
+       },
+       {
+        "rank": 3,
+        "programme_id": "il17a-crohn",
+        "outcome": "failed",
+        "score": 0.711
+       },
+       {
+        "rank": 4,
+        "programme_id": "il17a-psoriasis",
+        "outcome": "approved",
+        "score": 0.711
+       },
+       {
+        "rank": 5,
+        "programme_id": "mapk14-copd",
+        "outcome": "failed",
+        "score": 0.711
+       },
+       {
+        "rank": 6,
+        "programme_id": "pdcd1-melanoma",
+        "outcome": "approved",
+        "score": 0.711
+       },
+       {
+        "rank": 7,
+        "programme_id": "htr6-alzheimer",
+        "outcome": "failed",
+        "score": 0.6682
+       },
+       {
+        "rank": 8,
+        "programme_id": "pla2g7-cad",
+        "outcome": "failed",
+        "score": 0.6682
+       },
+       {
+        "rank": 9,
+        "programme_id": "ptgdr2-asthma",
+        "outcome": "failed",
+        "score": 0.6682
+       },
+       {
+        "rank": 10,
+        "programme_id": "bace1-alzheimer",
+        "outcome": "failed",
+        "score": 0.6363
+       },
+       {
+        "rank": 11,
+        "programme_id": "cetp-cad",
+        "outcome": "failed",
+        "score": 0.5609
+       },
+       {
+        "rank": 12,
+        "programme_id": "egfr-nsclc",
+        "outcome": "approved",
+        "score": 0.5423
+       },
+       {
+        "rank": 13,
+        "programme_id": "alk-nsclc",
+        "outcome": "approved",
+        "score": 0.4862
+       },
+       {
+        "rank": 14,
+        "programme_id": "bcl2-cll",
+        "outcome": "approved",
+        "score": 0.4862
+       },
+       {
+        "rank": 15,
+        "programme_id": "braf-melanoma",
+        "outcome": "approved",
+        "score": 0.4862
+       },
+       {
+        "rank": 16,
+        "programme_id": "il6r-ra",
+        "outcome": "approved",
+        "score": 0.4862
+       },
+       {
+        "rank": 17,
+        "programme_id": "app-alzheimer",
+        "outcome": "failed",
+        "score": 0.4507
+       },
+       {
+        "rank": 18,
+        "programme_id": "cftr-cf",
+        "outcome": "approved",
+        "score": 0.4441
+       },
+       {
+        "rank": 19,
+        "programme_id": "pcsk9-hypercholesterolaemia",
+        "outcome": "approved",
+        "score": 0.4382
+       },
+       {
+        "rank": 20,
+        "programme_id": "btk-cll",
+        "outcome": "approved",
+        "score": 0.4365
+       }
+      ]
+     },
+     "baseline": {
+      "description": "Published all-indication phase base rate of failure, assigned to every programme",
+      "source": "Hay et al. 2014 (doi:10.1038/nbt.2786) / BIO-Informa-QLS 2021, Phase II->III transition",
+      "values_used": [
+       0.711
+      ],
+      "n_scored": 20,
+      "auroc": 0.5,
+      "separation_of_means": 0.0,
+      "expected_precision_at_k": 0.5,
+      "k": 10,
+      "note": "A constant predictor cannot rank, so its AUROC is 0.5 and its expected precision@k equals cohort prevalence. Per-therapy-area rates were not used: those figures were not verified against the source reports."
+     },
+     "programmes": [
+      {
+       "programme_id": "egfr-nsclc",
+       "target": "EGFR",
+       "disease": "non-small cell lung carcinoma",
+       "drug": "osimertinib",
+       "outcome": "approved",
+       "as_of": "2014-01-01",
+       "outcome_detail": "FDA approved 2015 for EGFR T790M-positive NSCLC",
+       "citation": "ChEMBL CHEMBL3353410 first_approval 2015",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL3353410",
+       "score": 0.5423,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 8,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ],
+        [
+         "animal_model",
+         0.075
+        ],
+        [
+         "weak binder",
+         -0.3
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.54: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96, animal_model +0.07, weak binder -0.30.",
+        "Weak potency against its target (median pChEMBL 4.79)."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.89) in Open Targets.",
+        "Human genetic support for EGFR-non-small cell lung carcinoma (genetic_association 0.93)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "alk-nsclc",
+       "target": "ALK",
+       "disease": "non-small cell lung carcinoma",
+       "drug": "crizotinib",
+       "outcome": "approved",
+       "as_of": "2010-01-01",
+       "outcome_detail": "FDA approved 2011 for ALK-positive NSCLC",
+       "citation": "ChEMBL CHEMBL601719 first_approval 2011",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL601719",
+       "score": 0.4862,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 6,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.49: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.81) in Open Targets.",
+        "Human genetic support for ALK-non-small cell lung carcinoma (somatic_mutation 0.82)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for ALK-non-small cell lung carcinoma",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for ALK-non-small cell lung carcinoma",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "braf-melanoma",
+       "target": "BRAF",
+       "disease": "melanoma",
+       "drug": "vemurafenib",
+       "outcome": "approved",
+       "as_of": "2010-01-01",
+       "outcome_detail": "FDA approved 2011 for BRAF V600E melanoma",
+       "citation": "ChEMBL CHEMBL1229517 first_approval 2011",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL1229517",
+       "score": 0.4862,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 6,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.49: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.85) in Open Targets.",
+        "Human genetic support for BRAF-melanoma (somatic_mutation 0.88)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for BRAF-melanoma",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL1229517 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "pcsk9-hypercholesterolaemia",
+       "target": "PCSK9",
+       "disease": "familial hypercholesterolemia",
+       "drug": "evolocumab",
+       "outcome": "approved",
+       "as_of": "2013-01-01",
+       "outcome_detail": "FDA approved 2015 for familial hypercholesterolaemia",
+       "citation": "ChEMBL CHEMBL2364655 first_approval 2015",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL2364655",
+       "score": 0.4382,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 7,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ],
+        [
+         "animal_model",
+         0.193
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.44: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96, animal_model +0.19."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.89) in Open Targets.",
+        "Human genetic support for PCSK9-familial hypercholesterolemia (genetic_association 0.92)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL2364655 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "cftr-cf",
+       "target": "CFTR",
+       "disease": "cystic fibrosis",
+       "drug": "ivacaftor",
+       "outcome": "approved",
+       "as_of": "2010-01-01",
+       "outcome_detail": "FDA approved 2012 for CFTR G551D cystic fibrosis",
+       "citation": "ChEMBL CHEMBL2010601 first_approval 2012",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL2010601",
+       "score": 0.4441,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 6,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ],
+        [
+         "animal_model",
+         0.1693
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.44: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96, animal_model +0.17."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.92) in Open Targets.",
+        "Human genetic support for CFTR-cystic fibrosis (genetic_association 0.96)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets somatic_mutation evidence for CFTR-cystic fibrosis",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL2010601 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.01
+      },
+      {
+       "programme_id": "btk-cll",
+       "target": "BTK",
+       "disease": "B-cell chronic lymphocytic leukemia",
+       "drug": "ibrutinib",
+       "outcome": "approved",
+       "as_of": "2012-01-01",
+       "outcome_detail": "FDA approved 2013 (mantle cell lymphoma), 2014 for CLL",
+       "citation": "ChEMBL CHEMBL1873475 first_approval 2013",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL1873475",
+       "score": 0.4365,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 6,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.44: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96, potent binder +0.20."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.72) in Open Targets.",
+        "Human genetic support for BTK-B-cell chronic lymphocytic leukemia (somatic_mutation 0.61).",
+        "Potent binder of its target (median pChEMBL 9.30)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for BTK-B-cell chronic lymphocytic leukemia",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for BTK-B-cell chronic lymphocytic leukemia",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.01
+      },
+      {
+       "programme_id": "il17a-psoriasis",
+       "target": "IL17A",
+       "disease": "psoriasis",
+       "drug": "secukinumab",
+       "outcome": "approved",
+       "as_of": "2013-01-01",
+       "outcome_detail": "FDA approved 2015 for moderate-to-severe plaque psoriasis",
+       "citation": "ChEMBL CHEMBL1743068 first_approval 2015",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL1743068",
+       "score": 0.711,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 3,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.71: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90.",
+        "Weak or absent human genetic support for IL17A-psoriasis (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.64) in Open Targets."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for IL17A-psoriasis",
+        "No Open Targets somatic_mutation evidence for IL17A-psoriasis",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for IL17A-psoriasis",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL1743068 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.01
+      },
+      {
+       "programme_id": "pdcd1-melanoma",
+       "target": "PDCD1",
+       "disease": "melanoma",
+       "drug": "pembrolizumab",
+       "outcome": "approved",
+       "as_of": "2013-01-01",
+       "outcome_detail": "FDA approved 2014 for advanced melanoma",
+       "citation": "ChEMBL CHEMBL3137343 first_approval 2014",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL3137343",
+       "score": 0.711,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 3,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.71: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90.",
+        "Weak or absent human genetic support for PDCD1-melanoma (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.63) in Open Targets."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for PDCD1-melanoma",
+        "No Open Targets somatic_mutation evidence for PDCD1-melanoma",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for PDCD1-melanoma",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL3137343 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.01
+      },
+      {
+       "programme_id": "bcl2-cll",
+       "target": "BCL2",
+       "disease": "B-cell chronic lymphocytic leukemia",
+       "drug": "venetoclax",
+       "outcome": "approved",
+       "as_of": "2014-01-01",
+       "outcome_detail": "FDA approved 2016 for 17p-deleted CLL",
+       "citation": "ChEMBL CHEMBL3137309 first_approval 2016",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL3137309",
+       "score": 0.4862,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 6,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.49: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.74) in Open Targets.",
+        "Human genetic support for BCL2-B-cell chronic lymphocytic leukemia (genetic_association 0.77)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for BCL2-B-cell chronic lymphocytic leukemia",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL3137309 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "il6r-ra",
+       "target": "IL6R",
+       "disease": "rheumatoid arthritis",
+       "drug": "sarilumab",
+       "outcome": "approved",
+       "as_of": "2015-01-01",
+       "outcome_detail": "FDA approved 2017 for moderate-to-severe rheumatoid arthritis",
+       "citation": "ChEMBL CHEMBL2108730 first_approval 2017",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL2108730",
+       "score": 0.4862,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 5,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.49: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.75) in Open Targets.",
+        "Human genetic support for IL6R-rheumatoid arthritis (genetic_association 0.90)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets somatic_mutation evidence for IL6R-rheumatoid arthritis",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for IL6R-rheumatoid arthritis",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL2108730 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "bace1-alzheimer",
+       "target": "BACE1",
+       "disease": "Alzheimer disease",
+       "drug": "verubecestat",
+       "outcome": "failed",
+       "as_of": "2016-01-01",
+       "outcome_detail": "Phase 2/3 EPOCH stopped early for futility; no cognitive benefit",
+       "citation": "ClinicalTrials.gov NCT01739348; doi:10.1056/NEJMoa1706441",
+       "citation_url": "https://clinicaltrials.gov/study/NCT01739348",
+       "score": 0.6363,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 5,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "animal_model",
+         0.1407
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.64: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, animal_model +0.14, potent binder +0.20.",
+        "Moderate overall target-disease association (0.42) in Open Targets.",
+        "Weak or absent human genetic support for BACE1-Alzheimer disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Potent binder of its target (median pChEMBL 8.54)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for BACE1-Alzheimer disease",
+        "No Open Targets somatic_mutation evidence for BACE1-Alzheimer disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "app-alzheimer",
+       "target": "APP",
+       "disease": "Alzheimer disease",
+       "drug": "solanezumab",
+       "outcome": "failed",
+       "as_of": "2015-01-01",
+       "outcome_detail": "Phase 3 EXPEDITION3 missed its primary cognitive endpoint",
+       "citation": "ClinicalTrials.gov NCT01900665; doi:10.1056/NEJMoa1705971",
+       "citation_url": "https://clinicaltrials.gov/study/NCT01900665",
+       "score": 0.4507,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 6,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ],
+        [
+         "animal_model",
+         0.1426
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.45: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96, animal_model +0.14."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.87) in Open Targets.",
+        "Human genetic support for APP-Alzheimer disease (genetic_association 0.93)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets somatic_mutation evidence for APP-Alzheimer disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL1743072 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "pla2g7-cad",
+       "target": "PLA2G7",
+       "disease": "coronary artery disorder",
+       "drug": "darapladib",
+       "outcome": "failed",
+       "as_of": "2012-01-01",
+       "outcome_detail": "Phase 3 STABILITY (15,828 patients) showed no reduction in major coronary events",
+       "citation": "ClinicalTrials.gov NCT00799903; doi:10.1056/NEJMoa1315878",
+       "citation_url": "https://clinicaltrials.gov/study/NCT00799903",
+       "score": 0.6682,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.67: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, potent binder +0.20.",
+        "Weak overall target-disease association (0.14) in Open Targets.",
+        "Weak or absent human genetic support for PLA2G7-coronary artery disorder (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Potent binder of its target (median pChEMBL 9.60)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for PLA2G7-coronary artery disorder",
+        "No Open Targets somatic_mutation evidence for PLA2G7-coronary artery disorder",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for PLA2G7-coronary artery disorder",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.01
+      },
+      {
+       "programme_id": "cetp-cad",
+       "target": "CETP",
+       "disease": "coronary artery disorder",
+       "drug": "dalcetrapib",
+       "outcome": "failed",
+       "as_of": "2010-01-01",
+       "outcome_detail": "Phase 3 programme halted for futility after dal-OUTCOMES; companion trial terminated",
+       "citation": "ClinicalTrials.gov NCT01059682; doi:10.1056/NEJMoa1206797",
+       "citation_url": "https://clinicaltrials.gov/study/NCT01059682",
+       "score": 0.5609,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 6,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "human genetics",
+         0.9555
+        ],
+        [
+         "weak binder",
+         -0.3
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.56: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, human genetics +0.96, weak binder -0.30.",
+        "Weak potency against its target (median pChEMBL 5.22)."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.67) in Open Targets.",
+        "Human genetic support for CETP-coronary artery disorder (genetic_association 0.75)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets somatic_mutation evidence for CETP-coronary artery disorder",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for CETP-coronary artery disorder",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.01
+      },
+      {
+       "programme_id": "htr6-alzheimer",
+       "target": "HTR6",
+       "disease": "Alzheimer disease",
+       "drug": "idalopirdine",
+       "outcome": "failed",
+       "as_of": "2015-01-01",
+       "outcome_detail": "Three Phase 3 trials completed without cognitive benefit over cholinesterase inhibitors",
+       "citation": "ClinicalTrials.gov NCT02006641; doi:10.1001/jama.2017.20373",
+       "citation_url": "https://clinicaltrials.gov/study/NCT02006641",
+       "score": 0.6682,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.67: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, potent binder +0.20.",
+        "Moderate overall target-disease association (0.42) in Open Targets.",
+        "Weak or absent human genetic support for HTR6-Alzheimer disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Potent binder of its target (median pChEMBL 9.08)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for HTR6-Alzheimer disease",
+        "No Open Targets somatic_mutation evidence for HTR6-Alzheimer disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for HTR6-Alzheimer disease",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.01
+      },
+      {
+       "programme_id": "ager-alzheimer",
+       "target": "AGER",
+       "disease": "Alzheimer disease",
+       "drug": "azeliragon",
+       "outcome": "failed",
+       "as_of": "2016-01-01",
+       "outcome_detail": "Phase 3 STEADFAST terminated after interim futility analysis",
+       "citation": "ClinicalTrials.gov NCT02080364",
+       "citation_url": "https://clinicaltrials.gov/study/NCT02080364",
+       "score": 0.711,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 3,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.71: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90.",
+        "Moderate overall target-disease association (0.21) in Open Targets.",
+        "Weak or absent human genetic support for AGER-Alzheimer disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for AGER-Alzheimer disease",
+        "No Open Targets somatic_mutation evidence for AGER-Alzheimer disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for AGER-Alzheimer disease",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL3989929 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.01
+      },
+      {
+       "programme_id": "il17a-crohn",
+       "target": "IL17A",
+       "disease": "Crohn disease",
+       "drug": "secukinumab",
+       "outcome": "failed",
+       "as_of": "2009-01-01",
+       "outcome_detail": "Phase 2 terminated; IL-17A blockade was ineffective and worsened disease in some patients",
+       "citation": "ClinicalTrials.gov NCT00584740; doi:10.1136/gutjnl-2011-301668",
+       "citation_url": "https://clinicaltrials.gov/study/NCT00584740",
+       "score": 0.711,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 3,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.71: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90.",
+        "Weak overall target-disease association (0.10) in Open Targets.",
+        "Weak or absent human genetic support for IL17A-Crohn disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for IL17A-Crohn disease",
+        "No Open Targets somatic_mutation evidence for IL17A-Crohn disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for IL17A-Crohn disease",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL1743068 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "grm5-fragile-x",
+       "target": "GRM5",
+       "disease": "fragile X syndrome",
+       "drug": "mavoglurant",
+       "outcome": "failed",
+       "as_of": "2012-01-01",
+       "outcome_detail": "Phase 2b in adults missed its primary behavioural endpoint",
+       "citation": "ClinicalTrials.gov NCT01253629; doi:10.1126/scitranslmed.aab4109",
+       "citation_url": "https://clinicaltrials.gov/study/NCT01253629",
+       "score": 0.711,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 3,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.71: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90.",
+        "Moderate overall target-disease association (0.28) in Open Targets.",
+        "Weak or absent human genetic support for GRM5-fragile X syndrome (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for GRM5-fragile X syndrome",
+        "No Open Targets somatic_mutation evidence for GRM5-fragile X syndrome",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for GRM5-fragile X syndrome",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL3087515 against its target before as_of",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "mapk14-copd",
+       "target": "MAPK14",
+       "disease": "chronic obstructive pulmonary disease",
+       "drug": "losmapimod",
+       "outcome": "failed",
+       "as_of": "2014-01-01",
+       "outcome_detail": "Phase 2 in frequent exacerbators completed without reducing exacerbations",
+       "citation": "ClinicalTrials.gov NCT02299375",
+       "citation_url": "https://clinicaltrials.gov/study/NCT02299375",
+       "score": 0.711,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.71: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90.",
+        "Weak overall target-disease association (0.14) in Open Targets.",
+        "Weak or absent human genetic support for MAPK14-chronic obstructive pulmonary disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for MAPK14-chronic obstructive pulmonary disease",
+        "No Open Targets somatic_mutation evidence for MAPK14-chronic obstructive pulmonary disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for MAPK14-chronic obstructive pulmonary disease",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      },
+      {
+       "programme_id": "ptgdr2-asthma",
+       "target": "PTGDR2",
+       "disease": "asthma",
+       "drug": "fevipiprant",
+       "outcome": "failed",
+       "as_of": "2018-01-01",
+       "outcome_detail": "Phase 3 LUSTER programme failed to reduce exacerbations meaningfully; development stopped",
+       "citation": "ClinicalTrials.gov NCT02555683; doi:10.1016/S2213-2600(20)30412-4",
+       "citation_url": "https://clinicaltrials.gov/study/NCT02555683",
+       "score": 0.6682,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.289,
+       "terms": [
+        [
+         "base rate",
+         -0.9002
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.67: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90, potent binder +0.20.",
+        "Moderate overall target-disease association (0.44) in Open Targets.",
+        "Weak or absent human genetic support for PTGDR2-asthma (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Potent binder of its target (median pChEMBL 8.59)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for PTGDR2-asthma",
+        "No Open Targets somatic_mutation evidence for PTGDR2-asthma",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for PTGDR2-asthma",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "Published priors (phase base rate, genetic relative success) were applied as methodology constants and NOT gated by as_of; they are identical for every asset"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.02
+      }
+     ]
+    },
+    "strict": {
+     "gate_priors": true,
+     "model": {
+      "n_scored": 20,
+      "n_not_scored": 0,
+      "comparison": {
+       "positive_label": "failed",
+       "negative_label": "approved",
+       "n_positive": 10,
+       "n_negative": 10,
+       "mean_positive": 0.5704,
+       "mean_negative": 0.5092,
+       "median_positive": 0.5859,
+       "median_negative": 0.5,
+       "stdev_positive": 0.0774,
+       "stdev_negative": 0.0665,
+       "separation_of_means": 0.0612,
+       "auroc": 0.715,
+       "mann_whitney_u": 71.5,
+       "mann_whitney_p": 0.10058,
+       "mann_whitney_method": "two-sided normal approximation with tie correction"
+      },
+      "precision_at_10": 0.6,
+      "recall_at_10": 0.6,
+      "ranking": [
+       {
+        "rank": 1,
+        "programme_id": "ager-alzheimer",
+        "outcome": "failed",
+        "score": 0.676
+       },
+       {
+        "rank": 2,
+        "programme_id": "il6r-ra",
+        "outcome": "approved",
+        "score": 0.676
+       },
+       {
+        "rank": 3,
+        "programme_id": "app-alzheimer",
+        "outcome": "failed",
+        "score": 0.644
+       },
+       {
+        "rank": 4,
+        "programme_id": "htr6-alzheimer",
+        "outcome": "failed",
+        "score": 0.6308
+       },
+       {
+        "rank": 5,
+        "programme_id": "ptgdr2-asthma",
+        "outcome": "failed",
+        "score": 0.6308
+       },
+       {
+        "rank": 6,
+        "programme_id": "bace1-alzheimer",
+        "outcome": "failed",
+        "score": 0.5974
+       },
+       {
+        "rank": 7,
+        "programme_id": "cetp-cad",
+        "outcome": "failed",
+        "score": 0.5744
+       },
+       {
+        "rank": 8,
+        "programme_id": "egfr-nsclc",
+        "outcome": "approved",
+        "score": 0.556
+       },
+       {
+        "rank": 9,
+        "programme_id": "alk-nsclc",
+        "outcome": "approved",
+        "score": 0.5
+       },
+       {
+        "rank": 10,
+        "programme_id": "bcl2-cll",
+        "outcome": "approved",
+        "score": 0.5
+       },
+       {
+        "rank": 11,
+        "programme_id": "braf-melanoma",
+        "outcome": "approved",
+        "score": 0.5
+       },
+       {
+        "rank": 12,
+        "programme_id": "grm5-fragile-x",
+        "outcome": "failed",
+        "score": 0.5
+       },
+       {
+        "rank": 13,
+        "programme_id": "il17a-crohn",
+        "outcome": "failed",
+        "score": 0.5
+       },
+       {
+        "rank": 14,
+        "programme_id": "il17a-psoriasis",
+        "outcome": "approved",
+        "score": 0.5
+       },
+       {
+        "rank": 15,
+        "programme_id": "mapk14-copd",
+        "outcome": "failed",
+        "score": 0.5
+       },
+       {
+        "rank": 16,
+        "programme_id": "pdcd1-melanoma",
+        "outcome": "approved",
+        "score": 0.5
+       },
+       {
+        "rank": 17,
+        "programme_id": "cftr-cf",
+        "outcome": "approved",
+        "score": 0.4578
+       },
+       {
+        "rank": 18,
+        "programme_id": "pcsk9-hypercholesterolaemia",
+        "outcome": "approved",
+        "score": 0.4519
+       },
+       {
+        "rank": 19,
+        "programme_id": "btk-cll",
+        "outcome": "approved",
+        "score": 0.4502
+       },
+       {
+        "rank": 20,
+        "programme_id": "pla2g7-cad",
+        "outcome": "failed",
+        "score": 0.4502
+       }
+      ]
+     },
+     "baseline": {
+      "description": "Published all-indication phase base rate of failure, assigned to every programme",
+      "source": "Hay et al. 2014 (doi:10.1038/nbt.2786) / BIO-Informa-QLS 2021, Phase II->III transition",
+      "values_used": [
+       0.676
+      ],
+      "n_scored": 6,
+      "auroc": 0.5,
+      "separation_of_means": 0.0,
+      "expected_precision_at_k": 0.5,
+      "k": 10,
+      "note": "A constant predictor cannot rank, so its AUROC is 0.5 and its expected precision@k equals cohort prevalence. Per-therapy-area rates were not used: those figures were not verified against the source reports."
+     },
+     "programmes": [
+      {
+       "programme_id": "egfr-nsclc",
+       "target": "EGFR",
+       "disease": "non-small cell lung carcinoma",
+       "drug": "osimertinib",
+       "outcome": "approved",
+       "as_of": "2014-01-01",
+       "outcome_detail": "FDA approved 2015 for EGFR T790M-positive NSCLC",
+       "citation": "ChEMBL CHEMBL3353410 first_approval 2015",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL3353410",
+       "score": 0.556,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 6,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ],
+        [
+         "animal_model",
+         0.075
+        ],
+        [
+         "weak binder",
+         -0.3
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.56: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00, animal_model +0.07, weak binder -0.30.",
+        "Weak potency against its target (median pChEMBL 4.79)."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.89) in Open Targets.",
+        "Human genetic support for EGFR-non-small cell lung carcinoma (genetic_association 0.93)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "alk-nsclc",
+       "target": "ALK",
+       "disease": "non-small cell lung carcinoma",
+       "drug": "crizotinib",
+       "outcome": "approved",
+       "as_of": "2010-01-01",
+       "outcome_detail": "FDA approved 2011 for ALK-positive NSCLC",
+       "citation": "ChEMBL CHEMBL601719 first_approval 2011",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL601719",
+       "score": 0.5,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.50: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.81) in Open Targets.",
+        "Human genetic support for ALK-non-small cell lung carcinoma (somatic_mutation 0.82)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for ALK-non-small cell lung carcinoma",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for ALK-non-small cell lung carcinoma",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "braf-melanoma",
+       "target": "BRAF",
+       "disease": "melanoma",
+       "drug": "vemurafenib",
+       "outcome": "approved",
+       "as_of": "2010-01-01",
+       "outcome_detail": "FDA approved 2011 for BRAF V600E melanoma",
+       "citation": "ChEMBL CHEMBL1229517 first_approval 2011",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL1229517",
+       "score": 0.5,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.50: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.85) in Open Targets.",
+        "Human genetic support for BRAF-melanoma (somatic_mutation 0.88)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for BRAF-melanoma",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL1229517 against its target before as_of",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "pcsk9-hypercholesterolaemia",
+       "target": "PCSK9",
+       "disease": "familial hypercholesterolemia",
+       "drug": "evolocumab",
+       "outcome": "approved",
+       "as_of": "2013-01-01",
+       "outcome_detail": "FDA approved 2015 for familial hypercholesterolaemia",
+       "citation": "ChEMBL CHEMBL2364655 first_approval 2015",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL2364655",
+       "score": 0.4519,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 5,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ],
+        [
+         "animal_model",
+         0.193
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.45: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00, animal_model +0.19."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.89) in Open Targets.",
+        "Human genetic support for PCSK9-familial hypercholesterolemia (genetic_association 0.92)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL2364655 against its target before as_of",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "cftr-cf",
+       "target": "CFTR",
+       "disease": "cystic fibrosis",
+       "drug": "ivacaftor",
+       "outcome": "approved",
+       "as_of": "2010-01-01",
+       "outcome_detail": "FDA approved 2012 for CFTR G551D cystic fibrosis",
+       "citation": "ChEMBL CHEMBL2010601 first_approval 2012",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL2010601",
+       "score": 0.4578,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ],
+        [
+         "animal_model",
+         0.1693
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.46: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00, animal_model +0.17."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.92) in Open Targets.",
+        "Human genetic support for CFTR-cystic fibrosis (genetic_association 0.96)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets somatic_mutation evidence for CFTR-cystic fibrosis",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL2010601 against its target before as_of",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "btk-cll",
+       "target": "BTK",
+       "disease": "B-cell chronic lymphocytic leukemia",
+       "drug": "ibrutinib",
+       "outcome": "approved",
+       "as_of": "2012-01-01",
+       "outcome_detail": "FDA approved 2013 (mantle cell lymphoma), 2014 for CLL",
+       "citation": "ChEMBL CHEMBL1873475 first_approval 2013",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL1873475",
+       "score": 0.4502,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.45: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00, potent binder +0.20."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.72) in Open Targets.",
+        "Human genetic support for BTK-B-cell chronic lymphocytic leukemia (somatic_mutation 0.61).",
+        "Potent binder of its target (median pChEMBL 9.30)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for BTK-B-cell chronic lymphocytic leukemia",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for BTK-B-cell chronic lymphocytic leukemia",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "il17a-psoriasis",
+       "target": "IL17A",
+       "disease": "psoriasis",
+       "drug": "secukinumab",
+       "outcome": "approved",
+       "as_of": "2013-01-01",
+       "outcome_detail": "FDA approved 2015 for moderate-to-severe plaque psoriasis",
+       "citation": "ChEMBL CHEMBL1743068 first_approval 2015",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL1743068",
+       "score": 0.5,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 2,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.50: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00.",
+        "Weak or absent human genetic support for IL17A-psoriasis (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.64) in Open Targets."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for IL17A-psoriasis",
+        "No Open Targets somatic_mutation evidence for IL17A-psoriasis",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for IL17A-psoriasis",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL1743068 against its target before as_of",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "pdcd1-melanoma",
+       "target": "PDCD1",
+       "disease": "melanoma",
+       "drug": "pembrolizumab",
+       "outcome": "approved",
+       "as_of": "2013-01-01",
+       "outcome_detail": "FDA approved 2014 for advanced melanoma",
+       "citation": "ChEMBL CHEMBL3137343 first_approval 2014",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL3137343",
+       "score": 0.5,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 2,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.50: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00.",
+        "Weak or absent human genetic support for PDCD1-melanoma (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.63) in Open Targets."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for PDCD1-melanoma",
+        "No Open Targets somatic_mutation evidence for PDCD1-melanoma",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for PDCD1-melanoma",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL3137343 against its target before as_of",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "bcl2-cll",
+       "target": "BCL2",
+       "disease": "B-cell chronic lymphocytic leukemia",
+       "drug": "venetoclax",
+       "outcome": "approved",
+       "as_of": "2014-01-01",
+       "outcome_detail": "FDA approved 2016 for 17p-deleted CLL",
+       "citation": "ChEMBL CHEMBL3137309 first_approval 2016",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL3137309",
+       "score": 0.5,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.50: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.74) in Open Targets.",
+        "Human genetic support for BCL2-B-cell chronic lymphocytic leukemia (genetic_association 0.77)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for BCL2-B-cell chronic lymphocytic leukemia",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL3137309 against its target before as_of",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "il6r-ra",
+       "target": "IL6R",
+       "disease": "rheumatoid arthritis",
+       "drug": "sarilumab",
+       "outcome": "approved",
+       "as_of": "2015-01-01",
+       "outcome_detail": "FDA approved 2017 for moderate-to-severe rheumatoid arthritis",
+       "citation": "ChEMBL CHEMBL2108730 first_approval 2017",
+       "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL2108730",
+       "score": 0.676,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.324,
+       "terms": [
+        [
+         "base rate",
+         -0.7354
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.68: Phase II->III base rate 0.324 (stage unknown) adjusted in log-odds by base rate -0.74."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.75) in Open Targets.",
+        "Human genetic support for IL6R-rheumatoid arthritis (genetic_association 0.90)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets somatic_mutation evidence for IL6R-rheumatoid arthritis",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for IL6R-rheumatoid arthritis",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL2108730 against its target before as_of",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "bace1-alzheimer",
+       "target": "BACE1",
+       "disease": "Alzheimer disease",
+       "drug": "verubecestat",
+       "outcome": "failed",
+       "as_of": "2016-01-01",
+       "outcome_detail": "Phase 2/3 EPOCH stopped early for futility; no cognitive benefit",
+       "citation": "ClinicalTrials.gov NCT01739348; doi:10.1056/NEJMoa1706441",
+       "citation_url": "https://clinicaltrials.gov/study/NCT01739348",
+       "score": 0.5974,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 5,
+       "base_rate": 0.324,
+       "terms": [
+        [
+         "base rate",
+         -0.7354
+        ],
+        [
+         "animal_model",
+         0.1407
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.60: Phase II->III base rate 0.324 (stage unknown) adjusted in log-odds by base rate -0.74, animal_model +0.14, potent binder +0.20.",
+        "Moderate overall target-disease association (0.42) in Open Targets.",
+        "Weak or absent human genetic support for BACE1-Alzheimer disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Potent binder of its target (median pChEMBL 8.54)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for BACE1-Alzheimer disease",
+        "No Open Targets somatic_mutation evidence for BACE1-Alzheimer disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "app-alzheimer",
+       "target": "APP",
+       "disease": "Alzheimer disease",
+       "drug": "solanezumab",
+       "outcome": "failed",
+       "as_of": "2015-01-01",
+       "outcome_detail": "Phase 3 EXPEDITION3 missed its primary cognitive endpoint",
+       "citation": "ClinicalTrials.gov NCT01900665; doi:10.1056/NEJMoa1705971",
+       "citation_url": "https://clinicaltrials.gov/study/NCT01900665",
+       "score": 0.644,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 5,
+       "base_rate": 0.324,
+       "terms": [
+        [
+         "base rate",
+         -0.7354
+        ],
+        [
+         "animal_model",
+         0.1426
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.64: Phase II->III base rate 0.324 (stage unknown) adjusted in log-odds by base rate -0.74, animal_model +0.14."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.87) in Open Targets.",
+        "Human genetic support for APP-Alzheimer disease (genetic_association 0.93)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets somatic_mutation evidence for APP-Alzheimer disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL1743072 against its target before as_of",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "pla2g7-cad",
+       "target": "PLA2G7",
+       "disease": "coronary artery disorder",
+       "drug": "darapladib",
+       "outcome": "failed",
+       "as_of": "2012-01-01",
+       "outcome_detail": "Phase 3 STABILITY (15,828 patients) showed no reduction in major coronary events",
+       "citation": "ClinicalTrials.gov NCT00799903; doi:10.1056/NEJMoa1315878",
+       "citation_url": "https://clinicaltrials.gov/study/NCT00799903",
+       "score": 0.4502,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 3,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.45: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00, potent binder +0.20.",
+        "Weak overall target-disease association (0.14) in Open Targets.",
+        "Weak or absent human genetic support for PLA2G7-coronary artery disorder (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Potent binder of its target (median pChEMBL 9.60)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for PLA2G7-coronary artery disorder",
+        "No Open Targets somatic_mutation evidence for PLA2G7-coronary artery disorder",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for PLA2G7-coronary artery disorder",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "cetp-cad",
+       "target": "CETP",
+       "disease": "coronary artery disorder",
+       "drug": "dalcetrapib",
+       "outcome": "failed",
+       "as_of": "2010-01-01",
+       "outcome_detail": "Phase 3 programme halted for futility after dal-OUTCOMES; companion trial terminated",
+       "citation": "ClinicalTrials.gov NCT01059682; doi:10.1056/NEJMoa1206797",
+       "citation_url": "https://clinicaltrials.gov/study/NCT01059682",
+       "score": 0.5744,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ],
+        [
+         "weak binder",
+         -0.3
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.57: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00, weak binder -0.30.",
+        "Weak potency against its target (median pChEMBL 5.22)."
+       ],
+       "support_reasons": [
+        "Strong overall target-disease association (0.67) in Open Targets.",
+        "Human genetic support for CETP-coronary artery disorder (genetic_association 0.75)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets somatic_mutation evidence for CETP-coronary artery disorder",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for CETP-coronary artery disorder",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "htr6-alzheimer",
+       "target": "HTR6",
+       "disease": "Alzheimer disease",
+       "drug": "idalopirdine",
+       "outcome": "failed",
+       "as_of": "2015-01-01",
+       "outcome_detail": "Three Phase 3 trials completed without cognitive benefit over cholinesterase inhibitors",
+       "citation": "ClinicalTrials.gov NCT02006641; doi:10.1001/jama.2017.20373",
+       "citation_url": "https://clinicaltrials.gov/study/NCT02006641",
+       "score": 0.6308,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.324,
+       "terms": [
+        [
+         "base rate",
+         -0.7354
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.63: Phase II->III base rate 0.324 (stage unknown) adjusted in log-odds by base rate -0.74, potent binder +0.20.",
+        "Moderate overall target-disease association (0.42) in Open Targets.",
+        "Weak or absent human genetic support for HTR6-Alzheimer disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Potent binder of its target (median pChEMBL 9.08)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for HTR6-Alzheimer disease",
+        "No Open Targets somatic_mutation evidence for HTR6-Alzheimer disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for HTR6-Alzheimer disease",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "ager-alzheimer",
+       "target": "AGER",
+       "disease": "Alzheimer disease",
+       "drug": "azeliragon",
+       "outcome": "failed",
+       "as_of": "2016-01-01",
+       "outcome_detail": "Phase 3 STEADFAST terminated after interim futility analysis",
+       "citation": "ClinicalTrials.gov NCT02080364",
+       "citation_url": "https://clinicaltrials.gov/study/NCT02080364",
+       "score": 0.676,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 3,
+       "base_rate": 0.324,
+       "terms": [
+        [
+         "base rate",
+         -0.7354
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.68: Phase II->III base rate 0.324 (stage unknown) adjusted in log-odds by base rate -0.74.",
+        "Moderate overall target-disease association (0.21) in Open Targets.",
+        "Weak or absent human genetic support for AGER-Alzheimer disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for AGER-Alzheimer disease",
+        "No Open Targets somatic_mutation evidence for AGER-Alzheimer disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for AGER-Alzheimer disease",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL3989929 against its target before as_of"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "il17a-crohn",
+       "target": "IL17A",
+       "disease": "Crohn disease",
+       "drug": "secukinumab",
+       "outcome": "failed",
+       "as_of": "2009-01-01",
+       "outcome_detail": "Phase 2 terminated; IL-17A blockade was ineffective and worsened disease in some patients",
+       "citation": "ClinicalTrials.gov NCT00584740; doi:10.1136/gutjnl-2011-301668",
+       "citation_url": "https://clinicaltrials.gov/study/NCT00584740",
+       "score": 0.5,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 2,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.50: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00.",
+        "Weak overall target-disease association (0.10) in Open Targets.",
+        "Weak or absent human genetic support for IL17A-Crohn disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for IL17A-Crohn disease",
+        "No Open Targets somatic_mutation evidence for IL17A-Crohn disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for IL17A-Crohn disease",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL1743068 against its target before as_of",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "grm5-fragile-x",
+       "target": "GRM5",
+       "disease": "fragile X syndrome",
+       "drug": "mavoglurant",
+       "outcome": "failed",
+       "as_of": "2012-01-01",
+       "outcome_detail": "Phase 2b in adults missed its primary behavioural endpoint",
+       "citation": "ClinicalTrials.gov NCT01253629; doi:10.1126/scitranslmed.aab4109",
+       "citation_url": "https://clinicaltrials.gov/study/NCT01253629",
+       "score": 0.5,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 2,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.50: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00.",
+        "Moderate overall target-disease association (0.28) in Open Targets.",
+        "Weak or absent human genetic support for GRM5-fragile X syndrome (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for GRM5-fragile X syndrome",
+        "No Open Targets somatic_mutation evidence for GRM5-fragile X syndrome",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for GRM5-fragile X syndrome",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No ChEMBL pChEMBL measurements for CHEMBL3087515 against its target before as_of",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "mapk14-copd",
+       "target": "MAPK14",
+       "disease": "chronic obstructive pulmonary disease",
+       "drug": "losmapimod",
+       "outcome": "failed",
+       "as_of": "2014-01-01",
+       "outcome_detail": "Phase 2 in frequent exacerbators completed without reducing exacerbations",
+       "citation": "ClinicalTrials.gov NCT02299375",
+       "citation_url": "https://clinicaltrials.gov/study/NCT02299375",
+       "score": 0.5,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 3,
+       "base_rate": 0.5,
+       "terms": [
+        [
+         "base rate",
+         0.0
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.50: Phase II->III base rate 0.500 (stage unknown) adjusted in log-odds by base rate +0.00.",
+        "Weak overall target-disease association (0.14) in Open Targets.",
+        "Weak or absent human genetic support for MAPK14-chronic obstructive pulmonary disease (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for MAPK14-chronic obstructive pulmonary disease",
+        "No Open Targets somatic_mutation evidence for MAPK14-chronic obstructive pulmonary disease",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for MAPK14-chronic obstructive pulmonary disease",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used",
+        "No phase base-rate study published before as_of; neutral 0.5 prior used",
+        "No genetic-support study published before as_of; genetics not up-weighted"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      },
+      {
+       "programme_id": "ptgdr2-asthma",
+       "target": "PTGDR2",
+       "disease": "asthma",
+       "drug": "fevipiprant",
+       "outcome": "failed",
+       "as_of": "2018-01-01",
+       "outcome_detail": "Phase 3 LUSTER programme failed to reduce exacerbations meaningfully; development stopped",
+       "citation": "ClinicalTrials.gov NCT02555683; doi:10.1016/S2213-2600(20)30412-4",
+       "citation_url": "https://clinicaltrials.gov/study/NCT02555683",
+       "score": 0.6308,
+       "status": "complete",
+       "confidence": "medium",
+       "n_ledger_rows": 4,
+       "base_rate": 0.324,
+       "terms": [
+        [
+         "base rate",
+         -0.7354
+        ],
+        [
+         "potent binder",
+         0.2
+        ]
+       ],
+       "risk_reasons": [
+        "Science failure risk 0.63: Phase II->III base rate 0.324 (stage unknown) adjusted in log-odds by base rate -0.74, potent binder +0.20.",
+        "Moderate overall target-disease association (0.44) in Open Targets.",
+        "Weak or absent human genetic support for PTGDR2-asthma (best human-genetics datatype score 0.00)."
+       ],
+       "support_reasons": [
+        "Potent binder of its target (median pChEMBL 8.59)."
+       ],
+       "missing": [
+        "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+        "No Open Targets genetic_association evidence for PTGDR2-asthma",
+        "No Open Targets somatic_mutation evidence for PTGDR2-asthma",
+        "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets clinical precedence (known_drug) excluded under as_of: it encodes clinical outcomes that may postdate the cutoff",
+        "No Open Targets animal_model evidence for PTGDR2-asthma",
+        "Open Targets affected_pathway excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "Open Targets literature excluded under as_of: text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+        "Open Targets rna_expression excluded under as_of: snapshot evidence has no pre-cutoff timestamps",
+        "gnomAD constraint excluded under as_of (undated snapshot)",
+        "Target safety liabilities excluded under as_of (undated literature curation)",
+        "DepMap CRISPR essentiality excluded under as_of (current release only)",
+        "Indication stage at as_of not reconstructible; Phase II->III base rate used"
+       ],
+       "leakage": [],
+       "error": null,
+       "elapsed_s": 0.0
+      }
+     ]
+    }
+   },
+   "failure_case": {
+    "programme_id": "il17a-psoriasis",
+    "drug": "secukinumab",
+    "target": "IL17A",
+    "disease": "psoriasis",
+    "actual_outcome": "approved",
+    "outcome_detail": "FDA approved 2015 for moderate-to-severe plaque psoriasis",
+    "citation": "ChEMBL CHEMBL1743068 first_approval 2015",
+    "citation_url": "https://www.ebi.ac.uk/chembl/explore/compound/CHEMBL1743068",
+    "as_of": "2013-01-01",
+    "score": 0.711,
+    "rank_by_risk": 4,
+    "cohort_size": 20,
+    "headline": "secukinumab (IL17A in psoriasis) was approved, but the science check ranked it 4 of 20 by risk with a score of 0.71, 0.22 above the median of the approved group.",
+    "why_it_happened": "The check penalised thin evidence at the cutoff. It flagged: Science failure risk 0.71: Phase II->III base rate 0.289 (stage unknown) adjusted in log-odds by base rate -0.90. Weak or absent human genetic support for IL17A-psoriasis (best human-genetics datatype score 0.00).",
+    "what_it_means": "The check is biased against mechanisms whose evidence is pharmacological rather than genetic. Absence of a genetic association is not evidence that a target is wrong, but the scoring treats it as a penalty.",
+    "missing_at_cutoff": [
+     "Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score uses only genetic_association, somatic_mutation, animal_model, tractability and year-filtered ChEMBL activity, and the overall association score may still include later evidence",
+     "No Open Targets genetic_association evidence for IL17A-psoriasis",
+     "No Open Targets somatic_mutation evidence for IL17A-psoriasis",
+     "Open Targets genetic_literature excluded under as_of: snapshot evidence has no pre-cutoff timestamps"
+    ]
+   },
+   "leakage_violations": {},
+   "cohort_caveats": [
+    "20 programmes is a small cohort; the Mann-Whitney p-value is reported so the separation is not read as powered.",
+    "Cohort selection is retrospective and favours well-known programmes, which over-represents clear-cut outcomes.",
+    "Open Targets serves only a current snapshot, so association scores may include evidence published after a programme's cutoff even with the datatype whitelist applied."
+   ]
+  },
+  "trial": {
+   "backtest": "trial",
+   "name": "Dead Trial",
+   "test": "1350 interventional Phase 2/3 drug trials started on or after 2022-01-01 with a terminal status, ranked by similarity to 2000 trials completed strictly before 2022-01-01",
+   "headline_metric": "precision@20 of the graveyard-similarity ranking, post-2022 test cohort",
+   "headline_value": 0.4,
+   "headline_auroc": 0.47938,
+   "in_period_auroc": 0.7185081374321881,
+   "generalises_across_boundary": false,
+   "baseline_metric": "best baseline precision@20",
+   "baseline_value": 0.3704,
+   "baseline_auroc": 0.5,
+   "model": {
+    "k_neighbours": 100,
+    "n_test": 1350,
+    "n_graveyard": 2000,
+    "test_prevalence": 0.3704,
+    "graveyard_prevalence": 0.21,
+    "precision_at_20": 0.4,
+    "recall_at_20": 0.016,
+    "auroc": 0.47938,
+    "lift_over_prevalence": 1.08,
+    "top_flagged": [
+     {
+      "nct_id": "NCT05634577",
+      "score": 0.4593,
+      "terminated": true,
+      "url": "https://clinicaltrials.gov/study/NCT05634577"
+     },
+     {
+      "nct_id": "NCT05542342",
+      "score": 0.4498,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT05542342"
+     },
+     {
+      "nct_id": "NCT05249569",
+      "score": 0.449,
+      "terminated": true,
+      "url": "https://clinicaltrials.gov/study/NCT05249569"
+     },
+     {
+      "nct_id": "NCT04951492",
+      "score": 0.4329,
+      "terminated": true,
+      "url": "https://clinicaltrials.gov/study/NCT04951492"
+     },
+     {
+      "nct_id": "NCT05117957",
+      "score": 0.428,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT05117957"
+     },
+     {
+      "nct_id": "NCT06125587",
+      "score": 0.4228,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT06125587"
+     },
+     {
+      "nct_id": "NCT05101629",
+      "score": 0.4211,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT05101629"
+     },
+     {
+      "nct_id": "NCT05622071",
+      "score": 0.4187,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT05622071"
+     },
+     {
+      "nct_id": "NCT05277480",
+      "score": 0.418,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT05277480"
+     },
+     {
+      "nct_id": "NCT05316467",
+      "score": 0.4141,
+      "terminated": true,
+      "url": "https://clinicaltrials.gov/study/NCT05316467"
+     },
+     {
+      "nct_id": "NCT05059470",
+      "score": 0.4124,
+      "terminated": true,
+      "url": "https://clinicaltrials.gov/study/NCT05059470"
+     },
+     {
+      "nct_id": "NCT05213221",
+      "score": 0.4122,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT05213221"
+     },
+     {
+      "nct_id": "NCT05660954",
+      "score": 0.4118,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT05660954"
+     },
+     {
+      "nct_id": "NCT06108596",
+      "score": 0.4116,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT06108596"
+     },
+     {
+      "nct_id": "NCT05454241",
+      "score": 0.4114,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT05454241"
+     },
+     {
+      "nct_id": "NCT05689021",
+      "score": 0.4105,
+      "terminated": true,
+      "url": "https://clinicaltrials.gov/study/NCT05689021"
+     },
+     {
+      "nct_id": "NCT06851104",
+      "score": 0.4102,
+      "terminated": true,
+      "url": "https://clinicaltrials.gov/study/NCT06851104"
+     },
+     {
+      "nct_id": "NCT05017246",
+      "score": 0.4094,
+      "terminated": true,
+      "url": "https://clinicaltrials.gov/study/NCT05017246"
+     },
+     {
+      "nct_id": "NCT06033092",
+      "score": 0.4094,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT06033092"
+     },
+     {
+      "nct_id": "NCT05968846",
+      "score": 0.4077,
+      "terminated": false,
+      "url": "https://clinicaltrials.gov/study/NCT05968846"
+     }
+    ]
+   },
+   "baselines": {
+    "phase_base_rate": {
+     "description": "Graveyard termination base rate assigned to every test trial",
+     "value": 0.21,
+     "auroc": 0.5,
+     "expected_precision_at_20": 0.3704,
+     "note": "A constant predictor cannot rank, so AUROC is 0.5 and expected precision@k equals test-cohort prevalence."
+    },
+    "size_only": {
+     "n": 0,
+     "auroc": null,
+     "direction": null,
+     "available": false,
+     "note": "Unavailable on this cohort: every test trial has finished, so all of them report ACTUAL rather than ESTIMATED enrollment. Ranking on actual enrollment would read the outcome, since a terminated trial stops small, so no size-only baseline can be computed here without leakage."
+    }
+   },
+   "graveyard_cross_validation": {
+    "folds": 5,
+    "n": 2000,
+    "prevalence": 0.21,
+    "by_k": {
+     "10": {
+      "auroc": 0.6925331525015069,
+      "precision_at_20": 1.0
+     },
+     "25": {
+      "auroc": 0.6897701928872815,
+      "precision_at_20": 0.8
+     },
+     "50": {
+      "auroc": 0.7000030138637734,
+      "precision_at_20": 0.75
+     },
+     "100": {
+      "auroc": 0.7185081374321881,
+      "precision_at_20": 0.8
+     }
+    },
+    "best_k": 100,
+    "best_auroc": 0.7185081374321881,
+    "note": "Model selection used these graveyard folds only. The post-2022 test cohort was scored once, with the k chosen here."
+   },
+   "finding": "The similarity model carries real signal inside the pre-2022 graveyard (cross-validated AUROC 0.7185081374321881) but does not survive the 2022-01-01 boundary (test AUROC 0.47938, precision@20 0.4 against prevalence 0.3704). Protocol shape predicts termination among trials of the same era and fails to transfer to the next one. On this evidence the trial lane must not claim to forecast termination from protocol fields alone.",
+   "feature_allowlist": [
+    "allocation",
+    "condition_tokens",
+    "criteria_chars",
+    "healthy_volunteers",
+    "intervention_model",
+    "intervention_tokens",
+    "intervention_types",
+    "masking",
+    "min_age_years",
+    "n_arms",
+    "n_conditions",
+    "n_exclusion",
+    "n_inclusion",
+    "n_primary_outcomes",
+    "n_secondary_outcomes",
+    "nct_id",
+    "phase",
+    "primary_purpose",
+    "sex",
+    "sponsor_class"
+   ],
+   "stripped_fields": [
+    "completionDate",
+    "completion_date",
+    "enrollment",
+    "enrollment_count",
+    "enrollment_type",
+    "hasResults",
+    "has_results",
+    "label",
+    "outcome",
+    "overallStatus",
+    "overall_status",
+    "primaryCompletionDate",
+    "primary_completion_date",
+    "results",
+    "start_date",
+    "terminated",
+    "whyStopped",
+    "why_stopped"
+   ],
+   "enrollment_leakage_audit": {
+    "enrollment_type_share_terminated": {
+     "ACTUAL": 1.0
+    },
+    "enrollment_type_share_completed": {
+     "ACTUAL": 1.0
+    },
+    "why_enrollment_is_excluded": "Enrollment is excluded from the model's feature allowlist. For a terminated trial the current record usually reports actual (small) enrollment, so both the count and its ESTIMATED/ACTUAL type carry outcome information.",
+    "why_stopped_present_terminated": 498,
+    "why_stopped_present_completed": 0
+   },
+   "date_leakage_violations": [],
+   "api_totals": {
+    "graveyard_terminated": 4312,
+    "graveyard_completed": 16241,
+    "test_terminated": 509,
+    "test_completed": 857
+   },
+   "rejected_records": {},
+   "caveats": [
+    "ClinicalTrials.gov's historical-version endpoint returns 403 to unauthenticated clients, so test trials are scored from their current record, not a pre-start snapshot. The allowlist removes outcome fields but cannot prove a protocol field was never amended after start.",
+    "Trials started on or after 2022-01-01 that already have a terminal status over-represent short and early-stopped studies, because long trials are still running. The measured prevalence is reported, not assumed.",
+    "Cohorts are the earliest-registered matching trials (sort=StudyFirstPostDate:asc) up to a cap, not a random sample of the registry.",
+    "These numbers measure the reference graveyard-similarity scorer defined in this module, not the product lane in checks/trial. That lane scores an asset against its indication's trial landscape rather than predicting one trial's fate, so it cannot be evaluated by a per-trial termination benchmark and is not what this backtest reports."
+   ],
+   "licence": "Public domain (US Government, NLM terms of use)"
+  },
+  "market": {
+   "backtest": "market",
+   "name": "Dead Market / Resistance",
+   "test": "7 targeted drugs with solved co-crystal structures and 14 documented clinical escape mutations; every residue ranked by exact heavy-atom contact distance to the bound drug plus UniProt variant density",
+   "headline_metric": "recall@10 of known clinical escapes (micro-average over escapes)",
+   "headline_value": 0.5,
+   "baseline_metric": "expected recall@10 of random selection within the binding pocket",
+   "baseline_value": 0.1576,
+   "model": {
+    "recall_at_10_micro": 0.5,
+    "recall_at_10_macro": 0.5476,
+    "escapes_found": 7,
+    "escapes_scorable": 14,
+    "lift_over_pocket_baseline": 3.17,
+    "lift_over_chain_baseline": 12.25
+   },
+   "baselines": {
+    "random_whole_chain": {
+     "description": "Uniform random residue selection across the resolved chain",
+     "expected_recall_at_10": 0.0408
+    },
+    "random_in_pocket": {
+     "description": "Uniform random selection among residues under 8.0 A of the drug; this baseline is already told where the pocket is",
+     "expected_recall_at_10": 0.1576
+    }
+   },
+   "recall_curve": {
+    "5": {
+     "model": 0.5,
+     "random_whole_chain": 0.0204,
+     "random_in_pocket": 0.0788
+    },
+    "10": {
+     "model": 0.5,
+     "random_whole_chain": 0.0408,
+     "random_in_pocket": 0.1576
+    },
+    "15": {
+     "model": 0.6429,
+     "random_whole_chain": 0.0613,
+     "random_in_pocket": 0.2363
+    },
+    "20": {
+     "model": 0.6429,
+     "random_whole_chain": 0.0817,
+     "random_in_pocket": 0.3151
+    }
+   },
+   "scoring": {
+    "formula": "0.75 * exp(-max(0, d - 3.5) / 2.0) + 0.25 * min(1, n_variants / 8.0)",
+    "contact_floor_angstrom": 3.5,
+    "pocket_threshold_angstrom": 8.0,
+    "note": "Weights are chosen heuristics, not fitted to the labels."
+   },
+   "cases": [
+    {
+     "case_id": "egfr-osimertinib",
+     "target": "EGFR",
+     "drug": "osimertinib",
+     "pdb_id": "4ZAU",
+     "pdb_url": "https://www.rcsb.org/structure/4ZAU",
+     "structure_file": "https://files.rcsb.org/download/4ZAU.pdb",
+     "uniprot_id": "P00533",
+     "uniprot_url": "https://www.ebi.ac.uk/proteins/api/variation/P00533",
+     "ligand_code": "YY3",
+     "ligand_heavy_atoms": 37,
+     "chain": "A",
+     "n_residues_resolved": 283,
+     "n_uniprot_features": 5656,
+     "pocket_size_under_8a": 41,
+     "numbering_problems": [],
+     "escapes": [
+      {
+       "mutation": "C797S",
+       "doi": "10.1038/nm.3854",
+       "url": "https://doi.org/10.1038/nm.3854",
+       "min_distance_angstrom": 3.272,
+       "in_pocket": true,
+       "rank": 1,
+       "found_in_top_k": true
+      }
+     ],
+     "escapes_absent_from_structure": [],
+     "n_escapes": 1,
+     "n_escapes_scorable": 1,
+     "recall_at_10": 1.0,
+     "n_found": 1,
+     "top_10_residues": [
+      {
+       "residue": "C797",
+       "min_distance_angstrom": 3.272,
+       "n_uniprot_variants": 8,
+       "score": 1.0
+      },
+      {
+       "residue": "A743",
+       "min_distance_angstrom": 3.37,
+       "n_uniprot_variants": 7,
+       "score": 0.9688
+      },
+      {
+       "residue": "M793",
+       "min_distance_angstrom": 3.038,
+       "n_uniprot_variants": 7,
+       "score": 0.9688
+      },
+      {
+       "residue": "P794",
+       "min_distance_angstrom": 3.286,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "G796",
+       "min_distance_angstrom": 3.385,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "L792",
+       "min_distance_angstrom": 3.853,
+       "n_uniprot_variants": 8,
+       "score": 0.8786
+      },
+      {
+       "residue": "V726",
+       "min_distance_angstrom": 3.517,
+       "n_uniprot_variants": 4,
+       "score": 0.8687
+      },
+      {
+       "residue": "G719",
+       "min_distance_angstrom": 3.731,
+       "n_uniprot_variants": 6,
+       "score": 0.8557
+      },
+      {
+       "residue": "Q791",
+       "min_distance_angstrom": 3.779,
+       "n_uniprot_variants": 6,
+       "score": 0.8398
+      },
+      {
+       "residue": "D800",
+       "min_distance_angstrom": 4.052,
+       "n_uniprot_variants": 7,
+       "score": 0.7879
+      }
+     ],
+     "recall_curve": {
+      "5": {
+       "model": 1.0,
+       "random_whole_chain": 0.0176678445229682,
+       "random_in_pocket": 0.12195121951219512
+      },
+      "10": {
+       "model": 1.0,
+       "random_whole_chain": 0.0353356890459364,
+       "random_in_pocket": 0.24390243902439024
+      },
+      "15": {
+       "model": 1.0,
+       "random_whole_chain": 0.053003533568904596,
+       "random_in_pocket": 0.36585365853658536
+      },
+      "20": {
+       "model": 1.0,
+       "random_whole_chain": 0.0706713780918728,
+       "random_in_pocket": 0.4878048780487805
+      }
+     },
+     "baselines": {
+      "random_whole_chain": 0.0353356890459364,
+      "random_in_pocket": 0.24390243902439024,
+      "positives_in_pocket": 1
+     },
+     "note": "C797S removes the cysteine osimertinib covalently binds"
+    },
+    {
+     "case_id": "egfr-gefitinib",
+     "target": "EGFR",
+     "drug": "gefitinib",
+     "pdb_id": "2ITY",
+     "pdb_url": "https://www.rcsb.org/structure/2ITY",
+     "structure_file": "https://files.rcsb.org/download/2ITY.pdb",
+     "uniprot_id": "P00533",
+     "uniprot_url": "https://www.ebi.ac.uk/proteins/api/variation/P00533",
+     "ligand_code": "IRE",
+     "ligand_heavy_atoms": 31,
+     "chain": "A",
+     "n_residues_resolved": 300,
+     "n_uniprot_features": 5656,
+     "pocket_size_under_8a": 50,
+     "numbering_problems": [],
+     "escapes": [
+      {
+       "mutation": "T790M",
+       "doi": "10.1371/journal.pmed.0020073",
+       "url": "https://doi.org/10.1371/journal.pmed.0020073",
+       "min_distance_angstrom": 2.888,
+       "in_pocket": true,
+       "rank": 11,
+       "found_in_top_k": false
+      }
+     ],
+     "escapes_absent_from_structure": [],
+     "n_escapes": 1,
+     "n_escapes_scorable": 1,
+     "recall_at_10": 0.0,
+     "n_found": 0,
+     "top_10_residues": [
+      {
+       "residue": "M793",
+       "min_distance_angstrom": 2.67,
+       "n_uniprot_variants": 7,
+       "score": 0.9688
+      },
+      {
+       "residue": "L788",
+       "min_distance_angstrom": 3.095,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "Q791",
+       "min_distance_angstrom": 3.421,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "P794",
+       "min_distance_angstrom": 3.372,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "G796",
+       "min_distance_angstrom": 3.421,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "A743",
+       "min_distance_angstrom": 3.595,
+       "n_uniprot_variants": 7,
+       "score": 0.934
+      },
+      {
+       "residue": "L792",
+       "min_distance_angstrom": 3.691,
+       "n_uniprot_variants": 8,
+       "score": 0.9317
+      },
+      {
+       "residue": "G719",
+       "min_distance_angstrom": 3.607,
+       "n_uniprot_variants": 6,
+       "score": 0.8984
+      },
+      {
+       "residue": "E762",
+       "min_distance_angstrom": 3.411,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      },
+      {
+       "residue": "M766",
+       "min_distance_angstrom": 2.938,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      }
+     ],
+     "recall_curve": {
+      "5": {
+       "model": 0.0,
+       "random_whole_chain": 0.016666666666666666,
+       "random_in_pocket": 0.1
+      },
+      "10": {
+       "model": 0.0,
+       "random_whole_chain": 0.03333333333333333,
+       "random_in_pocket": 0.2
+      },
+      "15": {
+       "model": 1.0,
+       "random_whole_chain": 0.05,
+       "random_in_pocket": 0.3
+      },
+      "20": {
+       "model": 1.0,
+       "random_whole_chain": 0.06666666666666667,
+       "random_in_pocket": 0.4
+      }
+     },
+     "baselines": {
+      "random_whole_chain": 0.03333333333333333,
+      "random_in_pocket": 0.2,
+      "positives_in_pocket": 1
+     },
+     "note": "T790M is the classic gatekeeper escape from first-generation EGFR inhibitors"
+    },
+    {
+     "case_id": "abl1-imatinib",
+     "target": "ABL1",
+     "drug": "imatinib",
+     "pdb_id": "2HYY",
+     "pdb_url": "https://www.rcsb.org/structure/2HYY",
+     "structure_file": "https://files.rcsb.org/download/2HYY.pdb",
+     "uniprot_id": "P00519",
+     "uniprot_url": "https://www.ebi.ac.uk/proteins/api/variation/P00519",
+     "ligand_code": "STI",
+     "ligand_heavy_atoms": 37,
+     "chain": "A",
+     "n_residues_resolved": 263,
+     "n_uniprot_features": 2159,
+     "pocket_size_under_8a": 59,
+     "numbering_problems": [],
+     "escapes": [
+      {
+       "mutation": "T315I",
+       "doi": "10.1126/science.1062538",
+       "url": "https://doi.org/10.1126/science.1062538",
+       "min_distance_angstrom": 3.014,
+       "in_pocket": true,
+       "rank": 2,
+       "found_in_top_k": true
+      },
+      {
+       "mutation": "E255K",
+       "doi": "10.1016/S1535-6108(02)00096-X",
+       "url": "https://doi.org/10.1016/S1535-6108(02)00096-X",
+       "min_distance_angstrom": 7.026,
+       "in_pocket": true,
+       "rank": 44,
+       "found_in_top_k": false
+      },
+      {
+       "mutation": "Y253H",
+       "doi": "10.1016/S1535-6108(02)00096-X",
+       "url": "https://doi.org/10.1016/S1535-6108(02)00096-X",
+       "min_distance_angstrom": 3.658,
+       "in_pocket": true,
+       "rank": 4,
+       "found_in_top_k": true
+      },
+      {
+       "mutation": "M351T",
+       "doi": "10.1016/S1535-6108(02)00096-X",
+       "url": "https://doi.org/10.1016/S1535-6108(02)00096-X",
+       "min_distance_angstrom": 8.525,
+       "in_pocket": false,
+       "rank": 75,
+       "found_in_top_k": false
+      }
+     ],
+     "escapes_absent_from_structure": [],
+     "n_escapes": 4,
+     "n_escapes_scorable": 4,
+     "recall_at_10": 0.5,
+     "n_found": 2,
+     "top_10_residues": [
+      {
+       "residue": "F317",
+       "min_distance_angstrom": 3.33,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "T315",
+       "min_distance_angstrom": 3.014,
+       "n_uniprot_variants": 5,
+       "score": 0.9062
+      },
+      {
+       "residue": "A269",
+       "min_distance_angstrom": 3.437,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      },
+      {
+       "residue": "Y253",
+       "min_distance_angstrom": 3.658,
+       "n_uniprot_variants": 5,
+       "score": 0.8493
+      },
+      {
+       "residue": "M290",
+       "min_distance_angstrom": 3.255,
+       "n_uniprot_variants": 2,
+       "score": 0.8125
+      },
+      {
+       "residue": "V299",
+       "min_distance_angstrom": 3.278,
+       "n_uniprot_variants": 2,
+       "score": 0.8125
+      },
+      {
+       "residue": "I360",
+       "min_distance_angstrom": 2.723,
+       "n_uniprot_variants": 2,
+       "score": 0.8125
+      },
+      {
+       "residue": "L248",
+       "min_distance_angstrom": 3.632,
+       "n_uniprot_variants": 3,
+       "score": 0.7958
+      },
+      {
+       "residue": "M318",
+       "min_distance_angstrom": 2.937,
+       "n_uniprot_variants": 1,
+       "score": 0.7812
+      },
+      {
+       "residue": "H361",
+       "min_distance_angstrom": 2.979,
+       "n_uniprot_variants": 1,
+       "score": 0.7812
+      }
+     ],
+     "recall_curve": {
+      "5": {
+       "model": 0.5,
+       "random_whole_chain": 0.019011406844106463,
+       "random_in_pocket": 0.0635593220338983
+      },
+      "10": {
+       "model": 0.5,
+       "random_whole_chain": 0.03802281368821293,
+       "random_in_pocket": 0.1271186440677966
+      },
+      "15": {
+       "model": 0.5,
+       "random_whole_chain": 0.057034220532319393,
+       "random_in_pocket": 0.1906779661016949
+      },
+      "20": {
+       "model": 0.5,
+       "random_whole_chain": 0.07604562737642585,
+       "random_in_pocket": 0.2542372881355932
+      }
+     },
+     "baselines": {
+      "random_whole_chain": 0.03802281368821293,
+      "random_in_pocket": 0.1271186440677966,
+      "positives_in_pocket": 3
+     },
+     "note": "ABL1 numbering in 2HYY follows the 1a isoform; offset verified live"
+    },
+    {
+     "case_id": "alk-crizotinib",
+     "target": "ALK",
+     "drug": "crizotinib",
+     "pdb_id": "2XP2",
+     "pdb_url": "https://www.rcsb.org/structure/2XP2",
+     "structure_file": "https://files.rcsb.org/download/2XP2.pdb",
+     "uniprot_id": "Q9UM73",
+     "uniprot_url": "https://www.ebi.ac.uk/proteins/api/variation/Q9UM73",
+     "ligand_code": "VGH",
+     "ligand_heavy_atoms": 30,
+     "chain": "A",
+     "n_residues_resolved": 289,
+     "n_uniprot_features": 6343,
+     "pocket_size_under_8a": 49,
+     "numbering_problems": [],
+     "escapes": [
+      {
+       "mutation": "L1196M",
+       "doi": "10.1056/NEJMoa1007478",
+       "url": "https://doi.org/10.1056/NEJMoa1007478",
+       "min_distance_angstrom": 3.68,
+       "in_pocket": true,
+       "rank": 11,
+       "found_in_top_k": false
+      },
+      {
+       "mutation": "C1156Y",
+       "doi": "10.1056/NEJMoa1007478",
+       "url": "https://doi.org/10.1056/NEJMoa1007478",
+       "min_distance_angstrom": 16.217,
+       "in_pocket": false,
+       "rank": 100,
+       "found_in_top_k": false
+      },
+      {
+       "mutation": "G1269A",
+       "doi": "10.1126/scitranslmed.3003316",
+       "url": "https://doi.org/10.1126/scitranslmed.3003316",
+       "min_distance_angstrom": 3.037,
+       "in_pocket": true,
+       "rank": 1,
+       "found_in_top_k": true
+      }
+     ],
+     "escapes_absent_from_structure": [],
+     "n_escapes": 3,
+     "n_escapes_scorable": 3,
+     "recall_at_10": 0.3333333333333333,
+     "n_found": 1,
+     "top_10_residues": [
+      {
+       "residue": "G1269",
+       "min_distance_angstrom": 3.037,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "D1270",
+       "min_distance_angstrom": 3.429,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "M1199",
+       "min_distance_angstrom": 2.895,
+       "n_uniprot_variants": 5,
+       "score": 0.9062
+      },
+      {
+       "residue": "N1254",
+       "min_distance_angstrom": 3.218,
+       "n_uniprot_variants": 5,
+       "score": 0.9062
+      },
+      {
+       "residue": "A1148",
+       "min_distance_angstrom": 3.466,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      },
+      {
+       "residue": "A1200",
+       "min_distance_angstrom": 3.383,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      },
+      {
+       "residue": "G1202",
+       "min_distance_angstrom": 3.429,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      },
+      {
+       "residue": "R1253",
+       "min_distance_angstrom": 3.21,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      },
+      {
+       "residue": "L1256",
+       "min_distance_angstrom": 3.363,
+       "n_uniprot_variants": 3,
+       "score": 0.8438
+      },
+      {
+       "residue": "E1197",
+       "min_distance_angstrom": 3.026,
+       "n_uniprot_variants": 2,
+       "score": 0.8125
+      }
+     ],
+     "recall_curve": {
+      "5": {
+       "model": 0.3333333333333333,
+       "random_whole_chain": 0.01730103806228374,
+       "random_in_pocket": 0.06802721088435373
+      },
+      "10": {
+       "model": 0.3333333333333333,
+       "random_whole_chain": 0.03460207612456748,
+       "random_in_pocket": 0.13605442176870747
+      },
+      "15": {
+       "model": 0.6666666666666666,
+       "random_whole_chain": 0.05190311418685121,
+       "random_in_pocket": 0.20408163265306123
+      },
+      "20": {
+       "model": 0.6666666666666666,
+       "random_whole_chain": 0.06920415224913495,
+       "random_in_pocket": 0.27210884353741494
+      }
+     },
+     "baselines": {
+      "random_whole_chain": 0.03460207612456748,
+      "random_in_pocket": 0.13605442176870747,
+      "positives_in_pocket": 2
+     },
+     "note": ""
+    },
+    {
+     "case_id": "bcl2-venetoclax",
+     "target": "BCL2",
+     "drug": "venetoclax",
+     "pdb_id": "6O0K",
+     "pdb_url": "https://www.rcsb.org/structure/6O0K",
+     "structure_file": "https://files.rcsb.org/download/6O0K.pdb",
+     "uniprot_id": "P10415",
+     "uniprot_url": "https://www.ebi.ac.uk/proteins/api/variation/P10415",
+     "ligand_code": "LBM",
+     "ligand_heavy_atoms": 61,
+     "chain": "A",
+     "n_residues_resolved": 141,
+     "n_uniprot_features": 694,
+     "pocket_size_under_8a": 53,
+     "numbering_problems": [],
+     "escapes": [
+      {
+       "mutation": "G101V",
+       "doi": "10.1158/2159-8290.CD-18-1119",
+       "url": "https://doi.org/10.1158/2159-8290.CD-18-1119",
+       "min_distance_angstrom": 5.04,
+       "in_pocket": true,
+       "rank": 23,
+       "found_in_top_k": false
+      },
+      {
+       "mutation": "D103Y",
+       "doi": "10.1182/blood.2019004205",
+       "url": "https://doi.org/10.1182/blood.2019004205",
+       "min_distance_angstrom": 2.772,
+       "in_pocket": true,
+       "rank": 1,
+       "found_in_top_k": true
+      }
+     ],
+     "escapes_absent_from_structure": [],
+     "n_escapes": 2,
+     "n_escapes_scorable": 2,
+     "recall_at_10": 0.5,
+     "n_found": 1,
+     "top_10_residues": [
+      {
+       "residue": "D103",
+       "min_distance_angstrom": 2.772,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      },
+      {
+       "residue": "A149",
+       "min_distance_angstrom": 3.511,
+       "n_uniprot_variants": 4,
+       "score": 0.8709
+      },
+      {
+       "residue": "N143",
+       "min_distance_angstrom": 3.546,
+       "n_uniprot_variants": 4,
+       "score": 0.8579
+      },
+      {
+       "residue": "D111",
+       "min_distance_angstrom": 3.665,
+       "n_uniprot_variants": 5,
+       "score": 0.8469
+      },
+      {
+       "residue": "A100",
+       "min_distance_angstrom": 3.123,
+       "n_uniprot_variants": 3,
+       "score": 0.8438
+      },
+      {
+       "residue": "R107",
+       "min_distance_angstrom": 3.306,
+       "n_uniprot_variants": 3,
+       "score": 0.8438
+      },
+      {
+       "residue": "Y108",
+       "min_distance_angstrom": 3.688,
+       "n_uniprot_variants": 5,
+       "score": 0.839
+      },
+      {
+       "residue": "V156",
+       "min_distance_angstrom": 3.86,
+       "n_uniprot_variants": 6,
+       "score": 0.814
+      },
+      {
+       "residue": "W144",
+       "min_distance_angstrom": 3.292,
+       "n_uniprot_variants": 2,
+       "score": 0.8125
+      },
+      {
+       "residue": "G145",
+       "min_distance_angstrom": 2.96,
+       "n_uniprot_variants": 2,
+       "score": 0.8125
+      }
+     ],
+     "recall_curve": {
+      "5": {
+       "model": 0.5,
+       "random_whole_chain": 0.03546099290780142,
+       "random_in_pocket": 0.09433962264150944
+      },
+      "10": {
+       "model": 0.5,
+       "random_whole_chain": 0.07092198581560284,
+       "random_in_pocket": 0.18867924528301888
+      },
+      "15": {
+       "model": 0.5,
+       "random_whole_chain": 0.10638297872340426,
+       "random_in_pocket": 0.2830188679245283
+      },
+      "20": {
+       "model": 0.5,
+       "random_whole_chain": 0.14184397163120568,
+       "random_in_pocket": 0.37735849056603776
+      }
+     },
+     "baselines": {
+      "random_whole_chain": 0.07092198581560284,
+      "random_in_pocket": 0.18867924528301888,
+      "positives_in_pocket": 2
+     },
+     "note": ""
+    },
+    {
+     "case_id": "btk-ibrutinib",
+     "target": "BTK",
+     "drug": "ibrutinib",
+     "pdb_id": "5P9J",
+     "pdb_url": "https://www.rcsb.org/structure/5P9J",
+     "structure_file": "https://files.rcsb.org/download/5P9J.pdb",
+     "uniprot_id": "Q06187",
+     "uniprot_url": "https://www.ebi.ac.uk/proteins/api/variation/Q06187",
+     "ligand_code": "8E8",
+     "ligand_heavy_atoms": 33,
+     "chain": "A",
+     "n_residues_resolved": 263,
+     "n_uniprot_features": 1179,
+     "pocket_size_under_8a": 59,
+     "numbering_problems": [],
+     "escapes": [
+      {
+       "mutation": "C481S",
+       "doi": "10.1056/NEJMoa1400029",
+       "url": "https://doi.org/10.1056/NEJMoa1400029",
+       "min_distance_angstrom": 1.85,
+       "in_pocket": true,
+       "rank": 1,
+       "found_in_top_k": true
+      }
+     ],
+     "escapes_absent_from_structure": [],
+     "n_escapes": 1,
+     "n_escapes_scorable": 1,
+     "recall_at_10": 1.0,
+     "n_found": 1,
+     "top_10_residues": [
+      {
+       "residue": "C481",
+       "min_distance_angstrom": 1.85,
+       "n_uniprot_variants": 5,
+       "score": 0.9062
+      },
+      {
+       "residue": "A428",
+       "min_distance_angstrom": 3.297,
+       "n_uniprot_variants": 3,
+       "score": 0.8438
+      },
+      {
+       "residue": "K430",
+       "min_distance_angstrom": 3.455,
+       "n_uniprot_variants": 3,
+       "score": 0.8438
+      },
+      {
+       "residue": "M477",
+       "min_distance_angstrom": 3.006,
+       "n_uniprot_variants": 3,
+       "score": 0.8438
+      },
+      {
+       "residue": "T474",
+       "min_distance_angstrom": 3.245,
+       "n_uniprot_variants": 2,
+       "score": 0.8125
+      },
+      {
+       "residue": "G480",
+       "min_distance_angstrom": 3.354,
+       "n_uniprot_variants": 2,
+       "score": 0.8125
+      },
+      {
+       "residue": "M449",
+       "min_distance_angstrom": 3.4,
+       "n_uniprot_variants": 1,
+       "score": 0.7812
+      },
+      {
+       "residue": "D539",
+       "min_distance_angstrom": 3.062,
+       "n_uniprot_variants": 1,
+       "score": 0.7812
+      },
+      {
+       "residue": "E475",
+       "min_distance_angstrom": 2.803,
+       "n_uniprot_variants": 0,
+       "score": 0.75
+      },
+      {
+       "residue": "N484",
+       "min_distance_angstrom": 3.449,
+       "n_uniprot_variants": 0,
+       "score": 0.75
+      }
+     ],
+     "recall_curve": {
+      "5": {
+       "model": 1.0,
+       "random_whole_chain": 0.019011406844106463,
+       "random_in_pocket": 0.0847457627118644
+      },
+      "10": {
+       "model": 1.0,
+       "random_whole_chain": 0.03802281368821293,
+       "random_in_pocket": 0.1694915254237288
+      },
+      "15": {
+       "model": 1.0,
+       "random_whole_chain": 0.057034220532319393,
+       "random_in_pocket": 0.2542372881355932
+      },
+      "20": {
+       "model": 1.0,
+       "random_whole_chain": 0.07604562737642585,
+       "random_in_pocket": 0.3389830508474576
+      }
+     },
+     "baselines": {
+      "random_whole_chain": 0.03802281368821293,
+      "random_in_pocket": 0.1694915254237288,
+      "positives_in_pocket": 1
+     },
+     "note": "C481S removes the cysteine ibrutinib covalently binds"
+    },
+    {
+     "case_id": "kit-imatinib",
+     "target": "KIT",
+     "drug": "imatinib",
+     "pdb_id": "1T46",
+     "pdb_url": "https://www.rcsb.org/structure/1T46",
+     "structure_file": "https://files.rcsb.org/download/1T46.pdb",
+     "uniprot_id": "P10721",
+     "uniprot_url": "https://www.ebi.ac.uk/proteins/api/variation/P10721",
+     "ligand_code": "STI",
+     "ligand_heavy_atoms": 37,
+     "chain": "A",
+     "n_residues_resolved": 297,
+     "n_uniprot_features": 3483,
+     "pocket_size_under_8a": 67,
+     "numbering_problems": [],
+     "escapes": [
+      {
+       "mutation": "T670I",
+       "doi": "10.1200/JCO.2006.06.2265",
+       "url": "https://doi.org/10.1200/JCO.2006.06.2265",
+       "min_distance_angstrom": 2.95,
+       "in_pocket": true,
+       "rank": 2,
+       "found_in_top_k": true
+      },
+      {
+       "mutation": "V654A",
+       "doi": "10.1200/JCO.2006.06.2265",
+       "url": "https://doi.org/10.1200/JCO.2006.06.2265",
+       "min_distance_angstrom": 3.899,
+       "in_pocket": true,
+       "rank": 22,
+       "found_in_top_k": false
+      }
+     ],
+     "escapes_absent_from_structure": [],
+     "n_escapes": 2,
+     "n_escapes_scorable": 2,
+     "recall_at_10": 0.5,
+     "n_found": 1,
+     "top_10_residues": [
+      {
+       "residue": "E640",
+       "min_distance_angstrom": 2.862,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "T670",
+       "min_distance_angstrom": 2.95,
+       "n_uniprot_variants": 6,
+       "score": 0.9375
+      },
+      {
+       "residue": "A621",
+       "min_distance_angstrom": 3.582,
+       "n_uniprot_variants": 6,
+       "score": 0.9074
+      },
+      {
+       "residue": "H790",
+       "min_distance_angstrom": 3.236,
+       "n_uniprot_variants": 5,
+       "score": 0.9062
+      },
+      {
+       "residue": "L644",
+       "min_distance_angstrom": 3.324,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      },
+      {
+       "residue": "C809",
+       "min_distance_angstrom": 3.184,
+       "n_uniprot_variants": 4,
+       "score": 0.875
+      },
+      {
+       "residue": "L799",
+       "min_distance_angstrom": 3.531,
+       "n_uniprot_variants": 4,
+       "score": 0.8635
+      },
+      {
+       "residue": "V668",
+       "min_distance_angstrom": 3.619,
+       "n_uniprot_variants": 5,
+       "score": 0.8629
+      },
+      {
+       "residue": "K623",
+       "min_distance_angstrom": 3.392,
+       "n_uniprot_variants": 3,
+       "score": 0.8438
+      },
+      {
+       "residue": "Y672",
+       "min_distance_angstrom": 3.45,
+       "n_uniprot_variants": 3,
+       "score": 0.8438
+      }
+     ],
+     "recall_curve": {
+      "5": {
+       "model": 0.5,
+       "random_whole_chain": 0.016835016835016835,
+       "random_in_pocket": 0.07462686567164178
+      },
+      "10": {
+       "model": 0.5,
+       "random_whole_chain": 0.03367003367003367,
+       "random_in_pocket": 0.14925373134328357
+      },
+      "15": {
+       "model": 0.5,
+       "random_whole_chain": 0.050505050505050504,
+       "random_in_pocket": 0.22388059701492538
+      },
+      "20": {
+       "model": 0.5,
+       "random_whole_chain": 0.06734006734006734,
+       "random_in_pocket": 0.29850746268656714
+      }
+     },
+     "baselines": {
+      "random_whole_chain": 0.03367003367003367,
+      "random_in_pocket": 0.14925373134328357,
+      "positives_in_pocket": 2
+     },
+     "note": ""
+    }
+   ],
+   "excluded_cases": [
+    {
+     "case_id": "braf-vemurafenib",
+     "target": "BRAF",
+     "drug": "vemurafenib",
+     "pdb_id": "3OG7",
+     "reason": "no established BRAF kinase-domain escape point mutations to recall",
+     "note": "Clinical vemurafenib resistance is driven by NRAS/MEK1 mutations, BRAF splice variants and amplification rather than by kinase-domain point mutations"
+    }
+   ],
+   "numbering_problems": {},
+   "missed_escapes": [
+    {
+     "mutation": "T790M",
+     "min_distance_angstrom": 2.888,
+     "rank": 11,
+     "in_pocket": true,
+     "url": "https://doi.org/10.1371/journal.pmed.0020073"
+    },
+    {
+     "mutation": "E255K",
+     "min_distance_angstrom": 7.026,
+     "rank": 44,
+     "in_pocket": true,
+     "url": "https://doi.org/10.1016/S1535-6108(02)00096-X"
+    },
+    {
+     "mutation": "M351T",
+     "min_distance_angstrom": 8.525,
+     "rank": 75,
+     "in_pocket": false,
+     "url": "https://doi.org/10.1016/S1535-6108(02)00096-X"
+    },
+    {
+     "mutation": "L1196M",
+     "min_distance_angstrom": 3.68,
+     "rank": 11,
+     "in_pocket": true,
+     "url": "https://doi.org/10.1056/NEJMoa1007478"
+    },
+    {
+     "mutation": "C1156Y",
+     "min_distance_angstrom": 16.217,
+     "rank": 100,
+     "in_pocket": false,
+     "url": "https://doi.org/10.1056/NEJMoa1007478"
+    },
+    {
+     "mutation": "G101V",
+     "min_distance_angstrom": 5.04,
+     "rank": 23,
+     "in_pocket": true,
+     "url": "https://doi.org/10.1158/2159-8290.CD-18-1119"
+    },
+    {
+     "mutation": "V654A",
+     "min_distance_angstrom": 3.899,
+     "rank": 22,
+     "in_pocket": true,
+     "url": "https://doi.org/10.1200/JCO.2006.06.2265"
+    }
+   ],
+   "caveats": [
+    "Contact distance can only find escapes that touch the drug. Allosteric and conformational escapes sit far from the ligand and are ranked low by construction.",
+    "A co-crystal structure is one conformation of one construct. Residues in disordered loops are absent from the coordinates and cannot be ranked; they are reported, not counted as misses.",
+    "7 drug-target pairs and 14 labelled escapes is a small benchmark, and all of them are kinase or BCL2-family inhibitors.",
+    "Escape labels are curated from the cited literature, so the benchmark covers escapes that were published, which favours well-studied resistance mechanisms.",
+    "recall@10 is sensitive to k here: two contact-mediated escapes (EGFR T790M, ALK L1196M) rank 11th. The recall curve is reported for k from 5 to 20, and the scoring weights were not adjusted after seeing these ranks."
+   ],
+   "licences": {
+    "structures": "CC0 1.0",
+    "variants": "CC BY 4.0",
+    "labels": "curated, each with a DOI"
+   }
+  }
+ },
+ "skipped": [],
+ "stress_test": {
+  "n_assets": 10,
+  "n_succeeded": 10,
+  "n_failed": 0,
+  "llm_enabled": true,
+  "lane_timeout_s": 45.0,
+  "concurrency": 2,
+  "wall_clock_s": 112.44,
+  "latency_s": {
+   "mean_total": 21.18,
+   "median_total": 18.22,
+   "max_total": 45.03,
+   "median_resolve": 0.0,
+   "median_checks": 0.02,
+   "median_verdict": 18.2
+  },
+  "lane_status_counts": {
+   "science": {
+    "complete": 10
+   },
+   "trial": {
+    "complete": 10
+   },
+   "market": {
+    "failed": 10
+   }
+  },
+  "stage_failures": {},
+  "results": [
+   {
+    "query": "lecanemab",
+    "resolved_drug": "LECANEMAB",
+    "target": "APP",
+    "disease": "Alzheimer disease",
+    "ids": {
+     "chembl_id": "CHEMBL3833321",
+     "ensembl_id": "ENSG00000142192",
+     "target_symbol": "APP",
+     "efo_id": "MONDO_0004975",
+     "uniprot_id": "P05067",
+     "max_clinical_stage": "APPROVAL",
+     "inferred": "target,disease"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.0107,
+     "trial": 0.47,
+     "market": null
+    },
+    "overall_risk": "medium",
+    "overall_score": 0.4757,
+    "primary_failure_mode": "trial",
+    "n_ledger_rows": 49,
+    "n_red_flags": 4,
+    "synthesis": "llm",
+    "resolve_s": 0.0,
+    "checks_s": 0.03,
+    "verdict_s": 18.59,
+    "total_s": 18.62,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   },
+   {
+    "query": "sotorasib targeting KRAS in non-small cell lung carcinoma",
+    "resolved_drug": "SOTORASIB",
+    "target": "KRAS",
+    "disease": "non-small cell lung carcinoma",
+    "ids": {
+     "chembl_id": "CHEMBL4535757",
+     "ensembl_id": "ENSG00000133703",
+     "target_symbol": "KRAS",
+     "efo_id": "MONDO_0005233",
+     "uniprot_id": "P01116",
+     "max_clinical_stage": "APPROVAL"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.0145,
+     "trial": 0.46,
+     "market": null
+    },
+    "overall_risk": "medium",
+    "overall_score": 0.4678,
+    "primary_failure_mode": "trial",
+    "n_ledger_rows": 55,
+    "n_red_flags": 4,
+    "synthesis": "llm",
+    "resolve_s": 0.0,
+    "checks_s": 0.45,
+    "verdict_s": 27.42,
+    "total_s": 27.87,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   },
+   {
+    "query": "risdiplam",
+    "resolved_drug": "RISDIPLAM",
+    "target": "SMN2",
+    "disease": "spinal muscular atrophy",
+    "ids": {
+     "chembl_id": "CHEMBL4297528",
+     "ensembl_id": "ENSG00000205571",
+     "target_symbol": "SMN2",
+     "efo_id": "MONDO_0001516",
+     "uniprot_id": "Q16637",
+     "max_clinical_stage": "APPROVAL",
+     "inferred": "target,disease"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.0208,
+     "trial": 0.32,
+     "market": null
+    },
+    "overall_risk": "low",
+    "overall_score": 0.3341,
+    "primary_failure_mode": "trial",
+    "n_ledger_rows": 42,
+    "n_red_flags": 4,
+    "synthesis": "llm",
+    "resolve_s": 0.0,
+    "checks_s": 0.01,
+    "verdict_s": 18.3,
+    "total_s": 18.31,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   },
+   {
+    "query": "tirzepatide for type 2 diabetes mellitus",
+    "resolved_drug": "TIRZEPATIDE",
+    "target": "GIPR",
+    "disease": "type 2 diabetes mellitus",
+    "ids": {
+     "chembl_id": "CHEMBL4297839",
+     "ensembl_id": "ENSG00000010310",
+     "target_symbol": "GIPR",
+     "efo_id": "MONDO_0005148",
+     "uniprot_id": "P48546",
+     "max_clinical_stage": "APPROVAL",
+     "inferred": "target"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.0117,
+     "trial": 0.17,
+     "market": null
+    },
+    "overall_risk": "low",
+    "overall_score": 0.1797,
+    "primary_failure_mode": "trial",
+    "n_ledger_rows": 39,
+    "n_red_flags": 2,
+    "synthesis": "llm",
+    "resolve_s": 0.0,
+    "checks_s": 0.02,
+    "verdict_s": 23.72,
+    "total_s": 23.74,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   },
+   {
+    "query": "teclistamab",
+    "resolved_drug": "TECLISTAMAB",
+    "target": "CD3E",
+    "disease": "plasma cell myeloma",
+    "ids": {
+     "chembl_id": "CHEMBL4594505",
+     "ensembl_id": "ENSG00000198851",
+     "target_symbol": "CD3E",
+     "efo_id": "MONDO_0009693",
+     "uniprot_id": "P07766",
+     "max_clinical_stage": "APPROVAL",
+     "inferred": "target,disease"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.0447,
+     "trial": 0.31,
+     "market": null
+    },
+    "overall_risk": "low",
+    "overall_score": 0.3408,
+    "primary_failure_mode": "trial",
+    "n_ledger_rows": 35,
+    "n_red_flags": 2,
+    "synthesis": "llm",
+    "resolve_s": 0.0,
+    "checks_s": 0.01,
+    "verdict_s": 13.98,
+    "total_s": 13.99,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   },
+   {
+    "query": "elacestrant targeting ESR1 in breast carcinoma",
+    "resolved_drug": "ELACESTRANT",
+    "target": "ESR1",
+    "disease": "breast carcinoma",
+    "ids": {
+     "chembl_id": "CHEMBL4297509",
+     "ensembl_id": "ENSG00000091831",
+     "target_symbol": "ESR1",
+     "efo_id": "MONDO_0004989",
+     "uniprot_id": "P03372",
+     "max_clinical_stage": "APPROVAL"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.2307,
+     "trial": 0.53,
+     "market": null
+    },
+    "overall_risk": "high",
+    "overall_score": 0.6384,
+    "primary_failure_mode": "trial",
+    "n_ledger_rows": 52,
+    "n_red_flags": 4,
+    "synthesis": "llm",
+    "resolve_s": 0.0,
+    "checks_s": 0.02,
+    "verdict_s": 17.69,
+    "total_s": 17.71,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   },
+   {
+    "query": "mitapivat",
+    "resolved_drug": "MITAPIVAT",
+    "target": "PKLR",
+    "disease": "Hemolytic anemia",
+    "ids": {
+     "chembl_id": "CHEMBL4299940",
+     "ensembl_id": "ENSG00000143627",
+     "target_symbol": "PKLR",
+     "efo_id": "HP_0001878",
+     "uniprot_id": "P30613",
+     "max_clinical_stage": "APPROVAL",
+     "inferred": "target,disease"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.014,
+     "trial": 0.6,
+     "market": null
+    },
+    "overall_risk": "high",
+    "overall_score": 0.6056,
+    "primary_failure_mode": "trial",
+    "n_ledger_rows": 28,
+    "n_red_flags": 2,
+    "synthesis": "deterministic",
+    "resolve_s": 0.0,
+    "checks_s": 0.01,
+    "verdict_s": 45.01,
+    "total_s": 45.03,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   },
+   {
+    "query": "aducanumab",
+    "resolved_drug": "ADUCANUMAB",
+    "target": "APP",
+    "disease": "Alzheimer disease",
+    "ids": {
+     "chembl_id": "CHEMBL3039540",
+     "ensembl_id": "ENSG00000142192",
+     "target_symbol": "APP",
+     "efo_id": "MONDO_0004975",
+     "uniprot_id": "P05067",
+     "max_clinical_stage": "APPROVAL",
+     "inferred": "target,disease"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.0107,
+     "trial": 0.64,
+     "market": null
+    },
+    "overall_risk": "high",
+    "overall_score": 0.6439,
+    "primary_failure_mode": "trial",
+    "n_ledger_rows": 43,
+    "n_red_flags": 4,
+    "synthesis": "llm",
+    "resolve_s": 0.0,
+    "checks_s": 0.02,
+    "verdict_s": 18.1,
+    "total_s": 18.12,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   },
+   {
+    "query": "baricitinib for alopecia areata",
+    "resolved_drug": "BARICITINIB",
+    "target": "JAK1",
+    "disease": "alopecia areata",
+    "ids": {
+     "chembl_id": "CHEMBL2105759",
+     "ensembl_id": "ENSG00000162434",
+     "target_symbol": "JAK1",
+     "efo_id": "MONDO_0005340",
+     "uniprot_id": "P23458",
+     "max_clinical_stage": "APPROVAL",
+     "inferred": "target"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.287,
+     "trial": 0.19,
+     "market": null
+    },
+    "overall_risk": "medium",
+    "overall_score": 0.4225,
+    "primary_failure_mode": "science",
+    "n_ledger_rows": 21,
+    "n_red_flags": 3,
+    "synthesis": "llm",
+    "resolve_s": 0.01,
+    "checks_s": 0.06,
+    "verdict_s": 12.56,
+    "total_s": 12.63,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   },
+   {
+    "query": "tofersen targeting SOD1 in amyotrophic lateral sclerosis",
+    "resolved_drug": "TOFERSEN",
+    "target": "SOD1",
+    "disease": "amyotrophic lateral sclerosis",
+    "ids": {
+     "chembl_id": "CHEMBL3833346",
+     "ensembl_id": "ENSG00000142168",
+     "target_symbol": "SOD1",
+     "efo_id": "MONDO_0004976",
+     "uniprot_id": "P00441",
+     "max_clinical_stage": "APPROVAL"
+    },
+    "lane_status": {
+     "science": "complete",
+     "trial": "complete",
+     "market": "failed"
+    },
+    "lane_scores": {
+     "science": 0.0174,
+     "trial": 0.22,
+     "market": null
+    },
+    "overall_risk": "low",
+    "overall_score": 0.2336,
+    "primary_failure_mode": "trial",
+    "n_ledger_rows": 28,
+    "n_red_flags": 3,
+    "synthesis": "llm",
+    "resolve_s": 0.0,
+    "checks_s": 0.02,
+    "verdict_s": 15.78,
+    "total_s": 15.8,
+    "stage_failed": null,
+    "error": null,
+    "ok": true
+   }
+  ]
+ }
+}

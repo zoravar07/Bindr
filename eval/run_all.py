@@ -68,6 +68,28 @@ async def run_all(skip: Sequence[str] = (), include_stress: bool = False,
 # ---------------------------------------------------------------------------
 
 
+def _science_verdict(sci: dict, model: dict) -> str:
+    p = sci.get("headline_p_value")
+    auroc_v = model.get("auroc") or 0.0
+    beats = auroc_v > (sci.get("baseline_auroc") or 0.5)
+    n = (model.get("n_positive") or 0) + (model.get("n_negative") or 0)
+    if p is not None and p < 0.05:
+        return (f"Beats the baseline on ranking (AUROC {_fmt(auroc_v)}) and the separation is significant "
+                f"at the 5% level (Mann-Whitney p={_fmt(p)}, n={n})")
+    return (f"{'Beats' if beats else 'Does not beat'} the baseline on ranking "
+            f"(AUROC {_fmt(auroc_v)}), not significant at the 5% level (p={_fmt(p)}, n={n})")
+
+
+def _market_verdict(market: dict) -> str:
+    curve = market.get("recall_curve") or {}
+    ks = sorted(curve, key=lambda k: int(k))
+    beats_all = all((curve[k]["model"] or 0) > (curve[k]["random_in_pocket"] or 0) for k in ks)
+    if beats_all and ks:
+        return f"Beats both random baselines at every k from {ks[0]} to {ks[-1]}"
+    losing = [k for k in ks if (curve[k]["model"] or 0) <= (curve[k]["random_in_pocket"] or 0)]
+    return f"Beats the pocket baseline at some k but not at k={', '.join(losing)}"
+
+
 def proof_rows(results: dict) -> list[dict]:
     rows = []
     sci = results["backtests"].get("science")
@@ -82,7 +104,7 @@ def proof_rows(results: dict) -> list[dict]:
             "headline": f"Mean risk is {_fmt(sci['headline_value'])} higher for programmes that failed "
                         f"than for those approved (AUROC {_fmt(model['auroc'])}, "
                         f"Mann-Whitney p={_fmt(sci['headline_p_value'], 3)})",
-            "verdict": "Beats the baseline on ranking, not statistically significant at n=20",
+            "verdict": _science_verdict(sci, model),
         })
     trial = results["backtests"].get("trial")
     if trial:
@@ -98,7 +120,15 @@ def proof_rows(results: dict) -> list[dict]:
                         f"{_fmt(m['test_prevalence'])}, with out-of-period AUROC "
                         f"{_fmt(trial['headline_auroc'])} while in-period cross-validated AUROC is "
                         f"{_fmt(cv.get('best_auroc'))}",
-            "verdict": "Does not generalise across the 2022 boundary. Reported as a negative result",
+            "verdict": (
+                "Beats the prevalence baseline on precision@20 and ranks no better than chance overall "
+                f"(AUROC {_fmt(trial['headline_auroc'])}); does not generalise across the "
+                f"{trial['test'].split('after ')[1][:10]} boundary despite in-period AUROC "
+                f"{_fmt(cv.get('best_auroc'))}. Reported as a negative result"
+                if not trial.get("generalises_across_boundary") else
+                f"Generalises across the boundary: AUROC {_fmt(trial['headline_auroc'])}, "
+                f"precision@20 {_fmt(trial['headline_value'])} against prevalence "
+                f"{_fmt(m['test_prevalence'])}"),
         })
     market = results["backtests"].get("market")
     if market:
@@ -114,7 +144,7 @@ def proof_rows(results: dict) -> list[dict]:
             "headline": f"Recovers {m['escapes_found']} of {m['escapes_scorable']} documented clinical "
                         f"escape mutations in the top 10 residues, "
                         f"{_fmt(m['lift_over_pocket_baseline'], 2)}x the pocket-random baseline",
-            "verdict": "Beats both random baselines at every k from 5 to 20",
+            "verdict": _market_verdict(market),
         })
     return rows
 
@@ -134,8 +164,10 @@ def render_report(results: dict) -> str:
     a(f"Generated {results['generated_at']} by `.venv/bin/python -m eval.run_all`. "
       f"Every number below is read from `eval/results.json`, which that command writes.")
     a("")
-    a("Three backtests, each against real public records with a date cutoff enforced in code. "
-      "Two of the three beat their baseline. The trial backtest does not, and is reported as it came out.")
+    rows = proof_rows(results)
+    beaten = sum(1 for r in rows if r["verdict"].startswith(("Beats", "Generalises")))
+    a(f"Three backtests, each against real public records with a date cutoff enforced in code. "
+      f"{beaten} of {len(rows)} beat their baseline. Results that did not are reported as they came out.")
     a("")
 
     a("## Proof slide")
