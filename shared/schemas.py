@@ -93,6 +93,8 @@ class CheckResult(_Model):
     reasons: list[Reason]
     missing: list[str]
     ledger_rows: list[LedgerRow]
+    # Optional 3D structure view for the UI (any lane may attach one).
+    structure: "StructurePayload | None" = None
 
     @model_validator(mode="after")
     def _reasons_cite_own_rows(self) -> "CheckResult":
@@ -266,3 +268,5 @@ __all__ = [
     "VerdictReport",
     "utc_now",
 ]
+
+CheckResult.model_rebuild()
