@@ -83,6 +83,36 @@ async def run_check(asset: Asset, emit: Callable[[StatusEvent], Awaitable[None] 
 | `VerdictReport`    | Final draft: overall call, per-check summaries, red flags, sign-off.   |
 | `SignOffAction`    | A human's approve / reject / amend action on a verdict.                |
 
+### Notes for lane authors (added in Core steps 6-9)
+
+- Set `Reason.direction` to `"risk"` or `"support"`. The verdict writer's fallback turns risk reasons into red flags.
+- `CheckResult.score` is failure risk in [0, 1]. The verdict combines usable lanes as `1 - prod(1 - score)`.
+- Attach a `StructurePayload` via `CheckResult.structure` if your lane has one; the API returns the first it finds.
+- Use `shared/sources.py` (`ot_query`, `chembl_get`) or `shared/cache.py` (`cached_get_json`, `cached_post_json`) for live calls.
+- Licences: Open Targets `"CC0 1.0"`, ChEMBL `"CC BY-SA 3.0"`.
+- Set `LedgerRow.evidence_date` when you know it. The ledger rejects rows dated after `Asset.as_of`.
+- Asset IDs from the resolver: `chembl_id`, `ensembl_id`, `uniprot_id`, `target_symbol`, `efo_id` (an Open Targets disease ID: `EFO_` or `MONDO_`), `max_clinical_stage`, and `inferred`.
+- Open Targets API 26.9 renamed the `known_drug` datatype to `clinical`, and NSCLC is `MONDO_0005233`.
+
+### API (api/main.py)
+
+```bash
+.venv/bin/uvicorn api.main:app --reload --port 8000
+```
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/resolve` | `{query, drug?, target?, disease?, as_of?}` -> `Asset` to confirm |
+| POST | `/api/run` | `{asset, timeout_s?}` -> `{run_id}` (202) |
+| GET | `/api/runs/{id}/events` | SSE: `event: status` per `StatusEvent`, then `event: end`. Resume with `?after=N` |
+| GET | `/api/runs/{id}` | verdict, check results, ledger rows, structure |
+| POST | `/api/runs/{id}/signoff` | `{actions: [SignOffAction, ...]}` (accept / reject+note / add+new_flag / comment) |
+| GET | `/api/runs/{id}/memo` | Markdown memo; 409 until a verdict-level `accept` |
+
+Lanes are imported per run from `checks.<lane>.run_check`. Restart the server (or use `--reload`) after pulling a new lane.
+
+Tests: `.venv/bin/pytest` runs everything. Add `-m "not live"` to skip live API tests.
+
 ## Repo layout
 
 ```
