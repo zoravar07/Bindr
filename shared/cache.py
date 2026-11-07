@@ -151,6 +151,26 @@ async def cached_get_json(
     return await cache.fetch(url, params, _fetch, as_of=as_of)
 
 
+async def cached_get(
+    url: str,
+    params: dict[str, Any] | None = None,
+    *,
+    as_of: date | str | None = None,
+    cache: JsonCache | None = None,
+    timeout: float = 30.0,
+    headers: dict[str, str] | None = None,
+) -> tuple[Any, datetime]:
+    """GET a JSON endpoint through the cache, returning (data, fetched_at).
+
+    Convenience wrapper over `cached_get_json` for callers that want the
+    payload and the pull timestamp directly, e.g. to populate
+    `LedgerRow.date_pulled`. Used by checks/trial.
+    """
+    resp = await cached_get_json(url, params, as_of=as_of, cache=cache, timeout=timeout,
+                                 headers=headers)
+    return resp.data, resp.fetched_at
+
+
 async def cached_get_text(
     url: str,
     params: dict[str, Any] | None = None,
