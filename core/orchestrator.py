@@ -98,16 +98,28 @@ async def run_checks(
         raise ValueError(f"Unknown check ids {unknown}; expected a subset of {list(CHECK_IDS)}")
     events: list[StatusEvent] = []
 
-    async def _emit(event: StatusEvent) -> None:
+    loop = asyncio.get_running_loop()
+
+    def _emit(event: StatusEvent) -> "asyncio.Future[None]":
+        """Record a status event. Safe to call with or without `await`.
+
+        Lanes differ in how they emit: some `await emit(...)`, some call it
+        synchronously. Recording happens immediately either way, and the
+        returned future is already resolved, so ignoring it is safe and does
+        not leave an un-awaited coroutine behind.
+        """
         events.append(event)
-        if emit is None:
-            return
-        try:
-            out = emit(event)
-            if inspect.isawaitable(out):
-                await out
-        except Exception:  # a broken UI stream must never kill a lane
-            log.exception("emit failed for %s", event.check_id)
+        if emit is not None:
+            try:
+                out = emit(event)
+                if inspect.isawaitable(out):
+                    # Hand the caller's coroutine to the loop; never block the lane on the UI.
+                    asyncio.ensure_future(out).add_done_callback(_log_emit_failure)
+            except Exception:  # a broken UI stream must never kill a lane
+                log.exception("emit failed for %s", event.check_id)
+        done: asyncio.Future[None] = loop.create_future()
+        done.set_result(None)
+        return done
 
     started = time.monotonic()
     await _emit(StatusEvent(check_id="orchestrator", status="started",
@@ -169,6 +181,11 @@ async def _run_lane(check_id: str, fn: CheckFn, asset: Asset, emit: Emit, timeou
                                    f"{len(result.ledger_rows)} ledger rows",
                            timestamp=utc_now()))
     return result
+
+
+def _log_emit_failure(task: asyncio.Future) -> None:
+    if not task.cancelled() and task.exception() is not None:
+        log.warning("emit callback failed: %r", task.exception())
 
 
 def _drain(task: asyncio.Future) -> None:

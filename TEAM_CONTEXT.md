@@ -66,6 +66,7 @@ async def run_check(asset: Asset, emit: Callable[[StatusEvent], Awaitable[None] 
 ```
 
 - `emit` streams progress to the UI. Call it with `StatusEvent(check_id=..., status="running", message=..., timestamp=...)`.
+- `emit` is safe to call with or without `await`: the orchestrator records the event immediately and returns an already-resolved future. Do not block on it.
 - Return a `CheckResult` whose `check_id` matches the lane, with every `Reason` citing IDs present in its own `ledger_rows`.
 - Do not catch the orchestrator's timeout. If you can return partial evidence early, set `status="partial"` yourself.
 

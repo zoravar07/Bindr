@@ -139,6 +139,8 @@ async def test_live_resolve_then_run_real_science_lane(client_factory):
     await c.get(f"/api/runs/{run_id}/events")
     view = (await c.get(f"/api/runs/{run_id}")).json()
     assert view["check_results"]["science"]["status"] == "complete"
-    assert view["verdict"]["primary_failure_mode"] == "science"
+    # primary_failure_mode is the riskiest usable lane, whichever lanes exist today
+    usable = {k: r for k, r in view["check_results"].items() if r["status"] in ("complete", "partial")}
+    assert view["verdict"]["primary_failure_mode"] == max(usable, key=lambda k: usable[k]["score"])
     assert view["check_results"]["trial"]["status"] in ("failed", "complete", "partial", "timeout")
     assert (await c.post("/api/resolve", json={"query": "zzqxv-not-a-drug-9931"})).status_code == 422
