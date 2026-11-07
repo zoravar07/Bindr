@@ -18,11 +18,18 @@ Nelson et al. 2015 (2.0) or Minikel et al. 2024 (2.6). The other weights
 below are explicit heuristics, listed in WEIGHTS and echoed in the score
 reason so a reviewer can see exactly how the number was made.
 
+DepMap: CRISPR (Chronos) gene effect per cancer cell line and the
+common-essential flag, served by Open Targets (target.depMapEssentiality).
+
 as_of: Open Targets is a current snapshot with no usable time series
 (associationTimeSeries returned no rows when tested on 2026-11-07). With
-as_of set, the clinical-precedence datatype is excluded (it encodes later
-clinical outcomes), the indication stage is taken only from the ChEMBL
-first-approval year, and the snapshot caveat is recorded in `missing`.
+as_of set the score uses only AS_OF_DATATYPES (genetic_association,
+somatic_mutation, animal_model), tractability, and ChEMBL activity filtered
+by document year. Clinical precedence (later outcomes), literature
+(text-mined, no pre-cutoff timestamps, leaks post-trial papers), other
+datatypes, gnomAD constraint, safety liabilities and DepMap are excluded,
+each with a note in `missing`. The indication stage comes only from the
+ChEMBL first-approval year.
 """
 
 from __future__ import annotations
@@ -30,6 +37,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import math
+import re
 import statistics
 from dataclasses import dataclass, field
 from datetime import date
@@ -62,6 +70,12 @@ DATATYPES = (
 )
 DATATYPE_LABELS = {"clinical": "clinical precedence (known_drug)"}
 HUMAN_GENETIC = ("genetic_association", "somatic_mutation", "genetic_literature")
+# Datatypes trusted in as_of back-tests (see module docstring).
+AS_OF_DATATYPES = ("genetic_association", "somatic_mutation", "animal_model")
+AS_OF_EXCLUSION_WHY = {
+    "clinical": "it encodes clinical outcomes that may postdate the cutoff",
+    "literature": "text-mined evidence has no pre-cutoff timestamps and can include post-trial papers",
+}
 
 # Heuristic log-odds weights. Changing these changes every score; keep them visible.
 WEIGHTS = {
@@ -76,11 +90,17 @@ WEIGHTS = {
     "many_safety_liabilities": -0.2,
     "potent_binder": 0.2,
     "weak_binder": -0.3,
+    "depmap_dependency": 0.3,   # scaled by dependent-line fraction / DEPMAP_FULL_FRACTION
+    "common_essential": -0.3,   # pan-essential gene: narrow therapeutic window
 }
 GENETIC_FULL_STRENGTH = 0.5   # human-genetics datatype score treated as "supported"
 LOEUF_INTOLERANT = 0.35       # gnomAD LOEUF below this = loss-of-function intolerant
 MANY_LIABILITIES = 10
 POTENT_PCHEMBL, WEAK_PCHEMBL = 8.0, 6.0
+DEPMAP_DEPENDENT = -0.5       # Chronos gene effect at or below this = line depends on the gene
+DEPMAP_FULL_FRACTION = 0.5
+DEPMAP_MIN_LINES = 5
+DEPMAP_LICENCE = "CC BY 4.0 (DepMap, served via Open Targets)"
 
 
 # ---------------------------------------------------------------------------
@@ -101,26 +121,29 @@ BASE_RATE_PRIORS = (
     Prior("hay2014", date(2014, 1, 9), "Hay et al. 2014, Nat Biotechnol 32:40-51 (2003-2011 data)",
           "https://doi.org/10.1038/nbt.2786",
           "Phase transition success rates 2003-2011: Phase I->II 64.5%, II->III 32.4%, "
-          "III->NDA/BLA 60.1%, NDA/BLA->approval 83.2%",
-          {"p1": 0.645, "p2": 0.324, "p3": 0.601, "nda": 0.832}),
+          "III->NDA/BLA 60.1%, NDA/BLA->approval 83.2%; Phase I->approval LOA 10.4%",
+          {"p1": 0.645, "p2": 0.324, "p3": 0.601, "nda": 0.832, "loa": 0.104}),
     Prior("bio2021", date(2021, 2, 1), "BIO/Informa/QLS 2021, Clinical Development Success Rates 2011-2020",
           "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf",
           "Phase transition success rates 2011-2020: Phase I->II 52.0%, II->III 28.9%, "
-          "III->NDA/BLA 57.8%, NDA/BLA->approval 90.6%",
-          {"p1": 0.520, "p2": 0.289, "p3": 0.578, "nda": 0.906}),
+          "III->NDA/BLA 57.8%, NDA/BLA->approval 90.6%; Phase I->approval LOA 7.9%",
+          {"p1": 0.520, "p2": 0.289, "p3": 0.578, "nda": 0.906, "loa": 0.079}),
 )
 GENETIC_PRIORS = (
     Prior("nelson2015", date(2015, 6, 29), "Nelson et al. 2015, Nat Genet 47:856-860",
           "https://doi.org/10.1038/ng.3314",
-          "Drug mechanisms with human genetic support are about twice as likely to succeed (RS ~2.0)",
+          "Selecting genetically supported targets could double the success rate in clinical "
+          "development (RS 2.0)",
           {"rs": 2.0}),
     Prior("minikel2024", date(2024, 4, 17), "Minikel et al. 2024, Nature 629:624-629",
           "https://doi.org/10.1038/s41586-024-07316-0",
-          "Probability of success from Phase I to launch is 2.6 times greater for genetically supported "
-          "target-indication pairs (RS 2.6)",
+          "Probability of success for drug mechanisms with genetic support is 2.6 times greater "
+          "than those without (RS 2.6, Phase I to launch)",
           {"rs": 2.6}),
 )
 PRIOR_LICENCE = "citation only (published article/report; figures quoted)"
+# Figures checked against the sources on 2026-11-07: Hay 2014 Table 1, BIO 2021 report
+# (all-indication rates), Nelson 2015 and Minikel 2024 abstracts.
 
 
 def pick_prior(priors: tuple[Prior, ...], as_of: date | None) -> Prior | None:
@@ -151,11 +174,14 @@ class Features:
     association: float | None = None
     datatypes: dict[str, float] = field(default_factory=dict)
     genetic_rs: float | None = None
-    use_clinical: bool = True
+    datatypes_allowed: tuple[str, ...] | None = None  # None = all DATATYPES
+    use_target_safety: bool = True                    # gnomAD constraint + safety liabilities
     modality_tractable: bool | None = None
     lof_intolerant_inhibited: bool = False
     safety_liabilities: int = 0
     median_pchembl: float | None = None
+    depmap_dependent_fraction: float | None = None
+    common_essential: bool = False
 
 
 def _logit(p: float) -> float:
@@ -168,21 +194,25 @@ def compute_score(f: Features) -> tuple[float, list[tuple[str, float]]]:
     terms: list[tuple[str, float]] = [("base rate", _logit(f.base_rate))]
     if f.association is None:
         terms.append(("no target-disease association", WEIGHTS["no_association"]))
-    g = max((f.datatypes.get(k, 0.0) for k in HUMAN_GENETIC), default=0.0)
+    allowed = set(f.datatypes_allowed if f.datatypes_allowed is not None else DATATYPES)
+    g = max((f.datatypes.get(k, 0.0) for k in HUMAN_GENETIC if k in allowed), default=0.0)
     if f.genetic_rs and g > 0:
         terms.append(("human genetics", math.log(f.genetic_rs) * min(1.0, g / GENETIC_FULL_STRENGTH)))
     for k in ("clinical", "animal_model", "affected_pathway", "literature", "rna_expression"):
-        if k == "clinical" and not f.use_clinical:
-            continue
-        v = f.datatypes.get(k, 0.0)
+        v = f.datatypes.get(k, 0.0) if k in allowed else 0.0
         if v > 0:
             terms.append((k, WEIGHTS[k] * v))
     if f.modality_tractable is False:
         terms.append(("no tractability for drug modality", WEIGHTS["no_tractability_for_modality"]))
-    if f.lof_intolerant_inhibited:
+    if f.use_target_safety and f.lof_intolerant_inhibited:
         terms.append(("LoF-intolerant target inhibited", WEIGHTS["lof_intolerant_inhibited"]))
-    if f.safety_liabilities >= MANY_LIABILITIES:
+    if f.use_target_safety and f.safety_liabilities >= MANY_LIABILITIES:
         terms.append(("many safety liabilities", WEIGHTS["many_safety_liabilities"]))
+    if f.depmap_dependent_fraction:
+        terms.append(("DepMap dependency", WEIGHTS["depmap_dependency"]
+                      * min(1.0, f.depmap_dependent_fraction / DEPMAP_FULL_FRACTION)))
+    if f.common_essential:
+        terms.append(("common essential gene", WEIGHTS["common_essential"]))
     if f.median_pchembl is not None:
         if f.median_pchembl >= POTENT_PCHEMBL:
             terms.append(("potent binder", WEIGHTS["potent_binder"]))
@@ -204,6 +234,8 @@ query($e: String!, $d: String!) {
     tractability { label modality value }
     geneticConstraint { constraintType oe oeUpper score }
     safetyLiabilities { event datasource literature url }
+    isEssential
+    depMapEssentiality { tissueName screens { depmapId cellLineName diseaseFromSource geneEffect } }
   }
   disease(efoId: $d) {
     id name
@@ -248,6 +280,31 @@ async def _chembl_bundle(chembl_id: str) -> dict:
     return out
 
 
+_SYNONYMS = {"carcinoma": "cancer", "neoplasm": "cancer", "tumour": "tumor", "malignant": ""}
+
+
+def _disease_tokens(name: str) -> set[str]:
+    words = re.findall(r"[a-z0-9]+", name.lower().replace("-", " "))
+    return {_SYNONYMS.get(w, w) for w in words if _SYNONYMS.get(w, w) and w not in {"of", "the", "and"}}
+
+
+def depmap_lines_for_disease(depmap: list[dict], disease: str) -> list[dict]:
+    """Cell lines whose source disease contains every word of `disease` (after synonyms).
+
+    "non-small cell lung carcinoma" matches "Non-Small Cell Lung Cancer" but not
+    "Small Cell Lung Cancer"; "lung cancer" matches both.
+    """
+    want = _disease_tokens(disease)
+    if not want:
+        return []
+    out = []
+    for tissue in depmap or []:
+        for scr in tissue.get("screens") or []:
+            if scr.get("geneEffect") is not None and want <= _disease_tokens(scr.get("diseaseFromSource") or ""):
+                out.append(scr)
+    return out
+
+
 # ---------------------------------------------------------------------------
 # Check
 # ---------------------------------------------------------------------------
@@ -274,7 +331,7 @@ async def run_check(asset: Asset, emit: Emit) -> CheckResult:
                               licence=licence, check_id=CHECK_ID, evidence_date=evidence_date))
         return rid
 
-    await say("fetching", "Querying Open Targets and ChEMBL")
+    await say("fetching", "Querying Open Targets (incl. DepMap) and ChEMBL")
     tasks = {"ot": ot_query(_OT_SCIENCE_Q, {"e": ensembl_id, "d": efo_id})}
     if chembl_id:
         tasks["drug"] = ot_query(_OT_DRUG_Q, {"id": chembl_id})
@@ -288,12 +345,14 @@ async def run_check(asset: Asset, emit: Emit) -> CheckResult:
     missing.extend(f"Fetch failed ({e})" for e in fetch_errors)
 
     await say("computing", "Scoring target biology against phase base rates")
-    f = Features(use_clinical=as_of is None)
+    f = Features(datatypes_allowed=AS_OF_DATATYPES if as_of else None, use_target_safety=as_of is None)
+    allowed = set(f.datatypes_allowed or DATATYPES)
     sym, dis = asset.target, asset.disease
     pair = f"{sym}-{dis}"
     if as_of is not None:
-        missing.append("Open Targets is a current snapshot and cannot be rolled back to as_of; "
-                       "clinical precedence excluded and association scores may include later evidence")
+        missing.append("Open Targets is a current snapshot and cannot be rolled back to as_of; the as_of score "
+                       f"uses only {', '.join(AS_OF_DATATYPES)}, tractability and year-filtered ChEMBL activity, "
+                       "and the overall association score may still include later evidence")
 
     # ---- Open Targets association, tractability, constraint, safety ----
     ot = results.get("ot")
@@ -313,7 +372,10 @@ async def run_check(asset: Asset, emit: Emit) -> CheckResult:
                           record, url, OPENTARGETS_LICENCE, ot.fetched_at)
             dts = {d["id"]: float(d["score"]) for d in assoc.get("datatypeScores") or []}
             for k in DATATYPES:
-                if k in dts and dts[k] > 0:
+                if k not in allowed:
+                    why = AS_OF_EXCLUSION_WHY.get(k, "snapshot evidence has no pre-cutoff timestamps")
+                    missing.append(f"Open Targets {DATATYPE_LABELS.get(k, k)} excluded under as_of: {why}")
+                elif k in dts and dts[k] > 0:
                     f.datatypes[k] = dts[k]
                     add_row(f"sci-ot-dt-{k}", f"Open Targets {DATATYPE_LABELS.get(k, k)} score {dts[k]:.2f} for {pair}",
                             f"{record} datatype {k}", url, OPENTARGETS_LICENCE, ot.fetched_at)
@@ -329,7 +391,7 @@ async def run_check(asset: Asset, emit: Emit) -> CheckResult:
             reasons.append(Reason(text=f"Open Targets has no evidence linking {sym} to {dis}.",
                                   ledger_row_ids=[rid], direction="risk"))
 
-        g_key = max(HUMAN_GENETIC, key=lambda k: f.datatypes.get(k, 0.0))
+        g_key = max((k for k in HUMAN_GENETIC if k in allowed), key=lambda k: f.datatypes.get(k, 0.0))
         g = f.datatypes.get(g_key, 0.0)
         if g >= GENETIC_FULL_STRENGTH:
             reasons.append(Reason(text=f"Human genetic support for {pair} ({DATATYPE_LABELS.get(g_key, g_key)} {g:.2f}).",
@@ -351,8 +413,8 @@ async def run_check(asset: Asset, emit: Emit) -> CheckResult:
                         f"Open Targets target {ensembl_id} tractability", ot_url("target", ensembl_id),
                         OPENTARGETS_LICENCE, ot.fetched_at)
 
-        # genetic constraint
-        lof = next((c for c in target_rec.get("geneticConstraint") or [] if c.get("constraintType") == "lof"), None)
+        # genetic constraint (undated snapshot: skipped under as_of)
+        lof = None if as_of else next((c for c in target_rec.get("geneticConstraint") or [] if c.get("constraintType") == "lof"), None)
         loeuf = lof.get("oeUpper") if lof else None
         if loeuf is not None:
             c_rid = add_row("sci-ot-constraint", f"gnomAD loss-of-function constraint for {sym}: LOEUF {loeuf:.2f}",
@@ -360,12 +422,15 @@ async def run_check(asset: Asset, emit: Emit) -> CheckResult:
                             OPENTARGETS_LICENCE, ot.fetched_at)
         else:
             c_rid = None
-            missing.append(f"No genetic constraint data for {sym}")
+            missing.append(f"gnomAD constraint excluded under as_of (undated snapshot)" if as_of
+                           else f"No genetic constraint data for {sym}")
 
         # safety
-        liabilities = target_rec.get("safetyLiabilities") or []
+        liabilities = [] if as_of else target_rec.get("safetyLiabilities") or []
         f.safety_liabilities = len(liabilities)
-        if liabilities:
+        if as_of:
+            missing.append("Target safety liabilities excluded under as_of (undated literature curation)")
+        elif liabilities:
             events = sorted({l["event"] for l in liabilities if l.get("event")})
             s_rid = add_row("sci-ot-safety", f"{len(liabilities)} target safety liability records for {sym}"
                             + (f", including {', '.join(events[:5])}" if events else ""),
@@ -376,6 +441,46 @@ async def run_check(asset: Asset, emit: Emit) -> CheckResult:
                                       ledger_row_ids=[s_rid], direction="risk"))
         else:
             missing.append(f"No target safety liability records for {sym} (absence is not evidence of safety)")
+
+        # DepMap CRISPR gene effect (current release only: skipped under as_of)
+        depmap = target_rec.get("depMapEssentiality")
+        if as_of:
+            missing.append("DepMap CRISPR essentiality excluded under as_of (current release only)")
+        elif not depmap:
+            missing.append(f"No DepMap CRISPR screens for {sym} in Open Targets")
+        else:
+            all_effects = [s["geneEffect"] for t in depmap for s in t.get("screens") or []
+                           if s.get("geneEffect") is not None]
+            lines = depmap_lines_for_disease(depmap, dis)
+            f.common_essential = bool(target_rec.get("isEssential"))
+            dep_url = f"https://depmap.org/portal/gene/{sym}"
+            ess = "yes" if f.common_essential else "no"
+            if len(lines) >= DEPMAP_MIN_LINES:
+                effects = [s["geneEffect"] for s in lines]
+                n_dep = sum(1 for e in effects if e <= DEPMAP_DEPENDENT)
+                f.depmap_dependent_fraction = n_dep / len(effects)
+                d_rid = add_row(
+                    "sci-depmap", f"DepMap CRISPR (Chronos) for {sym}: {n_dep} of {len(effects)} {dis} cell lines "
+                    f"dependent (gene effect <= {DEPMAP_DEPENDENT}), median gene effect "
+                    f"{statistics.median(effects):.2f}; common essential: {ess}",
+                    f"DepMap via Open Targets target {ensembl_id} depMapEssentiality", dep_url,
+                    DEPMAP_LICENCE, ot.fetched_at)
+                if f.depmap_dependent_fraction >= 0.2:
+                    reasons.append(Reason(text=f"{n_dep} of {len(effects)} {dis} cell lines depend on {sym} in "
+                                               f"DepMap CRISPR screens.", ledger_row_ids=[d_rid],
+                                          direction="support"))
+            else:
+                d_rid = add_row(
+                    "sci-depmap", f"DepMap CRISPR (Chronos) for {sym}: {len(all_effects)} cell lines screened, "
+                    f"{sum(1 for e in all_effects if e <= DEPMAP_DEPENDENT)} dependent; common essential: {ess}",
+                    f"DepMap via Open Targets target {ensembl_id} depMapEssentiality", dep_url,
+                    DEPMAP_LICENCE, ot.fetched_at)
+                missing.append(f"Fewer than {DEPMAP_MIN_LINES} DepMap cell lines match {dis}; "
+                               "disease-specific dependency not assessed")
+            if f.common_essential:
+                reasons.append(Reason(text=f"{sym} is a DepMap common-essential gene, so systemic inhibition "
+                                           "risks a narrow therapeutic window.", ledger_row_ids=[d_rid],
+                                      direction="risk"))
     else:
         t_rid = c_rid = None
         loeuf = None
