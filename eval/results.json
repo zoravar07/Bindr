@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-07T18:27:40.111096+00:00",
+ "generated_at": "2026-11-07T19:29:58.546542+00:00",
  "run_date": "2026-11-07",
  "backtests": {
   "science": {
@@ -232,7 +232,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.02
+       "elapsed_s": 0.01
       },
       {
        "programme_id": "alk-nsclc",
@@ -283,7 +283,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.02
+       "elapsed_s": 0.01
       },
       {
        "programme_id": "braf-melanoma",
@@ -334,7 +334,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.02
+       "elapsed_s": 0.01
       },
       {
        "programme_id": "pcsk9-hypercholesterolaemia",
@@ -388,7 +388,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.02
+       "elapsed_s": 0.01
       },
       {
        "programme_id": "cftr-cf",
@@ -864,7 +864,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.01
+       "elapsed_s": 0.02
       },
       {
        "programme_id": "cetp-cad",
@@ -920,7 +920,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.01
+       "elapsed_s": 0.02
       },
       {
        "programme_id": "htr6-alzheimer",
@@ -973,7 +973,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.01
+       "elapsed_s": 0.02
       },
       {
        "programme_id": "ager-alzheimer",
@@ -1021,7 +1021,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.01
+       "elapsed_s": 0.02
       },
       {
        "programme_id": "il17a-crohn",
@@ -1483,7 +1483,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.0
+       "elapsed_s": 0.01
       },
       {
        "programme_id": "braf-melanoma",
@@ -1531,7 +1531,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.0
+       "elapsed_s": 0.01
       },
       {
        "programme_id": "pcsk9-hypercholesterolaemia",
@@ -1582,7 +1582,7 @@
        ],
        "leakage": [],
        "error": null,
-       "elapsed_s": 0.0
+       "elapsed_s": 0.01
       },
       {
        "programme_id": "cftr-cf",
@@ -3747,17 +3747,17 @@
   "n_assets": 10,
   "n_succeeded": 10,
   "n_failed": 0,
-  "llm_enabled": true,
+  "llm_enabled": false,
   "lane_timeout_s": 45.0,
   "concurrency": 2,
-  "wall_clock_s": 112.44,
+  "wall_clock_s": 3.69,
   "latency_s": {
-   "mean_total": 21.18,
-   "median_total": 18.22,
-   "max_total": 45.03,
+   "mean_total": 0.7,
+   "median_total": 0.66,
+   "max_total": 1.12,
    "median_resolve": 0.0,
-   "median_checks": 0.02,
-   "median_verdict": 18.2
+   "median_checks": 0.66,
+   "median_verdict": 0.0
   },
   "lane_status_counts": {
    "science": {
@@ -3767,7 +3767,8 @@
     "complete": 10
    },
    "market": {
-    "failed": 10
+    "failed": 8,
+    "complete": 2
    }
   },
   "stage_failures": {},
@@ -3800,12 +3801,12 @@
     "overall_score": 0.4757,
     "primary_failure_mode": "trial",
     "n_ledger_rows": 49,
-    "n_red_flags": 4,
-    "synthesis": "llm",
+    "n_red_flags": 2,
+    "synthesis": "deterministic",
     "resolve_s": 0.0,
-    "checks_s": 0.03,
-    "verdict_s": 18.59,
-    "total_s": 18.62,
+    "checks_s": 0.68,
+    "verdict_s": 0.0,
+    "total_s": 0.69,
     "stage_failed": null,
     "error": null,
     "ok": true
@@ -3837,12 +3838,12 @@
     "overall_score": 0.4678,
     "primary_failure_mode": "trial",
     "n_ledger_rows": 55,
-    "n_red_flags": 4,
-    "synthesis": "llm",
+    "n_red_flags": 5,
+    "synthesis": "deterministic",
     "resolve_s": 0.0,
-    "checks_s": 0.45,
-    "verdict_s": 27.42,
-    "total_s": 27.87,
+    "checks_s": 1.11,
+    "verdict_s": 0.0,
+    "total_s": 1.12,
     "stage_failed": null,
     "error": null,
     "ok": true
@@ -3875,12 +3876,12 @@
     "overall_score": 0.3341,
     "primary_failure_mode": "trial",
     "n_ledger_rows": 42,
-    "n_red_flags": 4,
-    "synthesis": "llm",
+    "n_red_flags": 3,
+    "synthesis": "deterministic",
     "resolve_s": 0.0,
-    "checks_s": 0.01,
-    "verdict_s": 18.3,
-    "total_s": 18.31,
+    "checks_s": 1.07,
+    "verdict_s": 0.0,
+    "total_s": 1.07,
     "stage_failed": null,
     "error": null,
     "ok": true
@@ -3913,12 +3914,12 @@
     "overall_score": 0.1797,
     "primary_failure_mode": "trial",
     "n_ledger_rows": 39,
-    "n_red_flags": 2,
-    "synthesis": "llm",
+    "n_red_flags": 1,
+    "synthesis": "deterministic",
     "resolve_s": 0.0,
-    "checks_s": 0.02,
-    "verdict_s": 23.72,
-    "total_s": 23.74,
+    "checks_s": 0.64,
+    "verdict_s": 0.0,
+    "total_s": 0.64,
     "stage_failed": null,
     "error": null,
     "ok": true
@@ -3951,12 +3952,12 @@
     "overall_score": 0.3408,
     "primary_failure_mode": "trial",
     "n_ledger_rows": 35,
-    "n_red_flags": 2,
-    "synthesis": "llm",
+    "n_red_flags": 3,
+    "synthesis": "deterministic",
     "resolve_s": 0.0,
-    "checks_s": 0.01,
-    "verdict_s": 13.98,
-    "total_s": 13.99,
+    "checks_s": 1.02,
+    "verdict_s": 0.0,
+    "total_s": 1.02,
     "stage_failed": null,
     "error": null,
     "ok": true
@@ -3977,23 +3978,23 @@
     "lane_status": {
      "science": "complete",
      "trial": "complete",
-     "market": "failed"
+     "market": "complete"
     },
     "lane_scores": {
      "science": 0.2307,
      "trial": 0.53,
-     "market": null
+     "market": 0.4052
     },
     "overall_risk": "high",
-    "overall_score": 0.6384,
+    "overall_score": 0.7849,
     "primary_failure_mode": "trial",
-    "n_ledger_rows": 52,
-    "n_red_flags": 4,
-    "synthesis": "llm",
+    "n_ledger_rows": 148,
+    "n_red_flags": 6,
+    "synthesis": "deterministic",
     "resolve_s": 0.0,
-    "checks_s": 0.02,
-    "verdict_s": 17.69,
-    "total_s": 17.71,
+    "checks_s": 0.09,
+    "verdict_s": 0.0,
+    "total_s": 0.1,
     "stage_failed": null,
     "error": null,
     "ok": true
@@ -4015,23 +4016,23 @@
     "lane_status": {
      "science": "complete",
      "trial": "complete",
-     "market": "failed"
+     "market": "complete"
     },
     "lane_scores": {
      "science": 0.014,
      "trial": 0.6,
-     "market": null
+     "market": 0.4416
     },
     "overall_risk": "high",
-    "overall_score": 0.6056,
+    "overall_score": 0.7798,
     "primary_failure_mode": "trial",
-    "n_ledger_rows": 28,
-    "n_red_flags": 2,
+    "n_ledger_rows": 44,
+    "n_red_flags": 5,
     "synthesis": "deterministic",
     "resolve_s": 0.0,
-    "checks_s": 0.01,
-    "verdict_s": 45.01,
-    "total_s": 45.03,
+    "checks_s": 0.92,
+    "verdict_s": 0.0,
+    "total_s": 0.93,
     "stage_failed": null,
     "error": null,
     "ok": true
@@ -4064,12 +4065,12 @@
     "overall_score": 0.6439,
     "primary_failure_mode": "trial",
     "n_ledger_rows": 43,
-    "n_red_flags": 4,
-    "synthesis": "llm",
+    "n_red_flags": 3,
+    "synthesis": "deterministic",
     "resolve_s": 0.0,
-    "checks_s": 0.02,
-    "verdict_s": 18.1,
-    "total_s": 18.12,
+    "checks_s": 0.6,
+    "verdict_s": 0.0,
+    "total_s": 0.6,
     "stage_failed": null,
     "error": null,
     "ok": true
@@ -4103,11 +4104,11 @@
     "primary_failure_mode": "science",
     "n_ledger_rows": 21,
     "n_red_flags": 3,
-    "synthesis": "llm",
-    "resolve_s": 0.01,
-    "checks_s": 0.06,
-    "verdict_s": 12.56,
-    "total_s": 12.63,
+    "synthesis": "deterministic",
+    "resolve_s": 0.0,
+    "checks_s": 0.3,
+    "verdict_s": 0.0,
+    "total_s": 0.31,
     "stage_failed": null,
     "error": null,
     "ok": true
@@ -4140,11 +4141,11 @@
     "primary_failure_mode": "trial",
     "n_ledger_rows": 28,
     "n_red_flags": 3,
-    "synthesis": "llm",
+    "synthesis": "deterministic",
     "resolve_s": 0.0,
-    "checks_s": 0.02,
-    "verdict_s": 15.78,
-    "total_s": 15.8,
+    "checks_s": 0.57,
+    "verdict_s": 0.0,
+    "total_s": 0.57,
     "stage_failed": null,
     "error": null,
     "ok": true

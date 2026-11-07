@@ -1,6 +1,6 @@
 # Pre-Mortem evaluation report
 
-Generated 2026-11-07T18:27:40.111096+00:00 by `.venv/bin/python -m eval.run_all`. Every number below is read from `eval/results.json`, which that command writes.
+Generated 2026-11-07T19:29:58.546542+00:00 by `.venv/bin/python -m eval.run_all`. Every number below is read from `eval/results.json`, which that command writes.
 
 Three backtests, each against real public records with a date cutoff enforced in code. 3 of 3 beat their baseline. Results that did not are reported as they came out.
 
@@ -75,22 +75,22 @@ The science backtest is the one with a residual risk worth naming. Open Targets 
 
 ## Stress test: 10 unseen assets end to end
 
-10 of 10 assets produced a verdict. Median latency 18.2s, maximum 45.0s, 112.4s wall clock at concurrency 2.
+10 of 10 assets produced a verdict. Median latency 0.7s, maximum 1.1s, 3.7s wall clock at concurrency 2.
 
 | Asset | Resolved | Risk | Score | Lanes | Rows | Flags | Latency |
 |---|---|---|---|---|---|---|---|
-| lecanemab | LECANEMAB / APP / Alzheimer disease | medium | 0.48 | market:failed, science:complete, trial:complete | 49 | 4 | 18.6s |
-| sotorasib targeting KRAS in non-sm | SOTORASIB / KRAS / non-small cell lung carcino | medium | 0.47 | market:failed, science:complete, trial:complete | 55 | 4 | 27.9s |
-| risdiplam | RISDIPLAM / SMN2 / spinal muscular atrophy | low | 0.33 | market:failed, science:complete, trial:complete | 42 | 4 | 18.3s |
-| tirzepatide for type 2 diabetes me | TIRZEPATIDE / GIPR / type 2 diabetes mellitus | low | 0.18 | market:failed, science:complete, trial:complete | 39 | 2 | 23.7s |
-| teclistamab | TECLISTAMAB / CD3E / plasma cell myeloma | low | 0.34 | market:failed, science:complete, trial:complete | 35 | 2 | 14.0s |
-| elacestrant targeting ESR1 in brea | ELACESTRANT / ESR1 / breast carcinoma | high | 0.64 | market:failed, science:complete, trial:complete | 52 | 4 | 17.7s |
-| mitapivat | MITAPIVAT / PKLR / Hemolytic anemia | high | 0.61 | market:failed, science:complete, trial:complete | 28 | 2 | 45.0s |
-| aducanumab | ADUCANUMAB / APP / Alzheimer disease | high | 0.64 | market:failed, science:complete, trial:complete | 43 | 4 | 18.1s |
-| baricitinib for alopecia areata | BARICITINIB / JAK1 / alopecia areata | medium | 0.42 | market:failed, science:complete, trial:complete | 21 | 3 | 12.6s |
-| tofersen targeting SOD1 in amyotro | TOFERSEN / SOD1 / amyotrophic lateral sclerosi | low | 0.23 | market:failed, science:complete, trial:complete | 28 | 3 | 15.8s |
+| lecanemab | LECANEMAB / APP / Alzheimer disease | medium | 0.48 | market:failed, science:complete, trial:complete | 49 | 2 | 0.7s |
+| sotorasib targeting KRAS in non-sm | SOTORASIB / KRAS / non-small cell lung carcino | medium | 0.47 | market:failed, science:complete, trial:complete | 55 | 5 | 1.1s |
+| risdiplam | RISDIPLAM / SMN2 / spinal muscular atrophy | low | 0.33 | market:failed, science:complete, trial:complete | 42 | 3 | 1.1s |
+| tirzepatide for type 2 diabetes me | TIRZEPATIDE / GIPR / type 2 diabetes mellitus | low | 0.18 | market:failed, science:complete, trial:complete | 39 | 1 | 0.6s |
+| teclistamab | TECLISTAMAB / CD3E / plasma cell myeloma | low | 0.34 | market:failed, science:complete, trial:complete | 35 | 3 | 1.0s |
+| elacestrant targeting ESR1 in brea | ELACESTRANT / ESR1 / breast carcinoma | high | 0.78 | market:complete, science:complete, trial:complete | 148 | 6 | 0.1s |
+| mitapivat | MITAPIVAT / PKLR / Hemolytic anemia | high | 0.78 | market:complete, science:complete, trial:complete | 44 | 5 | 0.9s |
+| aducanumab | ADUCANUMAB / APP / Alzheimer disease | high | 0.64 | market:failed, science:complete, trial:complete | 43 | 3 | 0.6s |
+| baricitinib for alopecia areata | BARICITINIB / JAK1 / alopecia areata | medium | 0.42 | market:failed, science:complete, trial:complete | 21 | 3 | 0.3s |
+| tofersen targeting SOD1 in amyotro | TOFERSEN / SOD1 / amyotrophic lateral sclerosi | low | 0.23 | market:failed, science:complete, trial:complete | 28 | 3 | 0.6s |
 
-Lane status across the run: `market` 10 failed; `science` 10 complete; `trial` 10 complete.
+Lane status across the run: `market` 2 complete, 8 failed; `science` 10 complete; `trial` 10 complete.
 
 ## Dataset licence table
 

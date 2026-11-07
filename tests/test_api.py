@@ -132,15 +132,18 @@ async def test_errors(client_factory):
 
 @pytest.mark.live
 async def test_live_resolve_then_run_real_science_lane(client_factory):
-    c = client_factory(timeout_s=60)  # default lane loading: real science lane, others degrade
+    c = client_factory(timeout_s=60)  # default lane loading: all 3 checks live
     asset = (await c.post("/api/resolve", json={"query": "Osimertinib"})).json()
     assert asset["ids"]["uniprot_id"] == "P00533"
     run_id = (await c.post("/api/run", json={"asset": asset})).json()["run_id"]
     await c.get(f"/api/runs/{run_id}/events")
     view = (await c.get(f"/api/runs/{run_id}")).json()
     assert view["check_results"]["science"]["status"] == "complete"
-    # primary_failure_mode is the riskiest usable lane, whichever lanes exist today
+    assert view["check_results"]["trial"]["status"] == "complete"
+    assert view["check_results"]["market"]["status"] == "complete"
+    assert view["structure"] is not None
+    assert view["structure"]["structure_id"] == "6JXT"
+    # primary_failure_mode is the riskiest usable lane
     usable = {k: r for k, r in view["check_results"].items() if r["status"] in ("complete", "partial")}
     assert view["verdict"]["primary_failure_mode"] == max(usable, key=lambda k: usable[k]["score"])
-    assert view["check_results"]["trial"]["status"] in ("failed", "complete", "partial", "timeout")
     assert (await c.post("/api/resolve", json={"query": "zzqxv-not-a-drug-9931"})).status_code == 422

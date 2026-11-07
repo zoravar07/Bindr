@@ -366,7 +366,10 @@ async def write_verdict(
     summaries = []
     for cid, r in check_results.items():
         text = _check_summary_text(r)
-        ids = list(dict.fromkeys(i for x in r.reasons for i in x.ledger_row_ids))
+        if r.status in ("complete", "partial"):
+            ids = [i for i in dict.fromkeys(i for x in r.reasons for i in x.ledger_row_ids) if i in ledger]
+        else:
+            ids = []
         cand = llm_summaries.get(cid)
         if cand and r.status in ("complete", "partial") and numbers_ok(cand.get("summary", ""), allowed):
             cand_ids = [i for i in cand.get("ledger_row_ids") or [] if i in ledger]
