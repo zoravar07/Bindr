@@ -62,9 +62,17 @@ class EvidenceLedger:
         return sum(1 for r in rows if self.add(r))
 
     def add_result(self, result: CheckResult) -> int:
-        """Ingest a check's rows and confirm its reasons cite rows in the ledger."""
-        added = self.add_many(result.ledger_rows)
-        self.validate_reasons(result.reasons)
+        """Ingest a check's rows and confirm its reasons cite rows in the ledger.
+
+        All-or-nothing: if any row or citation fails, the ledger is left unchanged.
+        """
+        snapshot = dict(self._rows)
+        try:
+            added = self.add_many(result.ledger_rows)
+            self.validate_reasons(result.reasons)
+        except LedgerError:
+            self._rows = snapshot
+            raise
         return added
 
     # ---- reads ----------------------------------------------------------
