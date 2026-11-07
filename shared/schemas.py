@@ -21,6 +21,8 @@ CheckId = Literal["science", "trial", "market"]
 Confidence = Literal["high", "medium", "low"]
 CheckStatus = Literal["complete", "partial", "failed", "timeout"]
 RiskLevel = Literal["high", "medium", "low"]
+# Overall call; "insufficient_evidence" when no lane produced a usable result.
+OverallRisk = Literal["high", "medium", "low", "insufficient_evidence"]
 
 
 def utc_now() -> datetime:
@@ -73,6 +75,9 @@ class LedgerRow(_Model):
 class Reason(_Model):
     text: str
     ledger_row_ids: list[str]
+    # "risk" = evidence for this failure mode, "support" = evidence against it.
+    # The verdict writer's fallback turns "risk" (and unlabelled) reasons into red flags.
+    direction: Literal["risk", "support"] | None = None
 
     @field_validator("ledger_row_ids")
     @classmethod
@@ -147,6 +152,8 @@ class RedFlag(_Model):
     title: str
     text: str
     ledger_row_ids: list[str]
+    review_status: Literal["pending", "accepted", "rejected"] = "pending"
+    added_by: str | None = None  # analyst name when added during sign-off
 
     @field_validator("ledger_row_ids")
     @classmethod
@@ -164,19 +171,57 @@ class CheckSummary(_Model):
     missing: list[str] = Field(default_factory=list)
 
 
+class NewFlag(_Model):
+    """A red flag an analyst adds during sign-off. It must cite ledger rows too."""
+
+    check_id: CheckId
+    severity: RiskLevel
+    title: str
+    text: str
+    ledger_row_ids: list[str]
+
+    @field_validator("ledger_row_ids")
+    @classmethod
+    def _at_least_one(cls, v: list[str]) -> list[str]:
+        return _require_ids(v, "NewFlag")
+
+
 class SignOffAction(_Model):
+    """One analyst action.
+
+    accept + red_flag_id   -> accept that flag
+    accept, no red_flag_id -> sign off the whole verdict (is_draft becomes False)
+    reject + red_flag_id   -> reject that flag (note required; logged to rejections JSONL)
+    reject, no red_flag_id -> reject the whole verdict (stays a draft; logged)
+    add + new_flag         -> add an analyst flag
+    comment                -> note only
+    """
+
     reviewer: str
-    action: Literal["approve", "reject", "amend", "comment"]
+    action: Literal["accept", "reject", "add", "comment"]
     note: str = ""
-    # Optional pointer to the red flag the action concerns.
     red_flag_id: str | None = None
+    new_flag: NewFlag | None = None
     timestamp: datetime = Field(default_factory=utc_now)
+
+    @model_validator(mode="after")
+    def _action_fields(self) -> "SignOffAction":
+        if self.action == "reject" and not self.note.strip():
+            raise ValueError("reject requires a reason in note")
+        if self.action == "add" and self.new_flag is None:
+            raise ValueError("add requires new_flag")
+        if self.action != "add" and self.new_flag is not None:
+            raise ValueError("new_flag is only valid with action='add'")
+        return self
 
 
 class VerdictReport(_Model):
     asset: Asset
-    overall_risk: RiskLevel
+    overall_risk: OverallRisk
     overall_summary: str
+    # P(at least one failure mode bites), computed in Python from usable lane scores.
+    overall_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    overall_confidence: Confidence = "low"
     # The check most likely to kill the asset (highest risk among usable lanes).
     primary_failure_mode: CheckId | None = None
     check_summaries: list[CheckSummary]
@@ -185,6 +230,10 @@ class VerdictReport(_Model):
     is_draft: bool = True
     sign_off_log: list[SignOffAction] = Field(default_factory=list)
     generated_at: datetime = Field(default_factory=utc_now)
+    signed_off_by: str | None = None
+    signed_off_at: datetime | None = None
+    synthesis: Literal["llm", "deterministic"] = "deterministic"
+    interaction_id: str | None = None  # Gemini interaction, for follow-up turns
 
     @model_validator(mode="after")
     def _ranked_and_unique(self) -> "VerdictReport":
@@ -205,6 +254,8 @@ __all__ = [
     "CheckSummary",
     "Confidence",
     "LedgerRow",
+    "NewFlag",
+    "OverallRisk",
     "Reason",
     "RedFlag",
     "ResidueEvidence",
