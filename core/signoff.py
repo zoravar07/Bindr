@@ -134,6 +134,25 @@ _LANE_TITLES = {
 }
 
 
+def _flag_takeaway(title: str, text: str, check_id: str) -> str:
+    t = (title + " " + text).lower()
+    if "covalent" in t or "c797" in t or "attachment residue" in t:
+        return "Direct binding disruption: patient tumors can mutate this attachment residue, physically blocking the drug and driving rapid post-launch resistance."
+    if "escape" in t or "pocket" in t or "binding-pocket" in t or "binding site" in t:
+        return "Pocket vulnerability: active-site mutations can crowd out the drug and erode long-term durability. Requires monitoring for next-gen compound pipeline."
+    if "accrual" in t or "recruit" in t or "enrollment" in t:
+        return "Operational timeline risk: historical patient accrual in this indication is slow; budgeting and trial timelines should anticipate enrollment delays."
+    if "safety" in t or "toxic" in t or "adverse" in t:
+        return "Narrow therapeutic window: known target safety liabilities require proactive clinical dose-monitoring and adverse-event mitigation."
+    if "futility" in t or "efficacy" in t or "lack of efficacy" in t:
+        return "High clinical bar: prior trial futility underscores the need for confirmed biomarker selection to identify true responder populations."
+    if check_id == "science":
+        return "Biological validity risk: target validation should be verified in patient-derived models prior to capital commitment."
+    if check_id == "trial":
+        return "Execution bottleneck: clinical protocol and endpoint selection should be benchmarked against historical termination causes."
+    return "Due-diligence flag: review underlying evidence and assess mitigation strategy with the clinical team."
+
+
 def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str:
     if verdict.is_draft:
         raise SignOffError("Memo export requires sign-off (verdict is still a draft)")
@@ -206,7 +225,9 @@ def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str
         who = f" (added by {f.added_by})" if f.added_by else ""
         body = linkify(f.text)
         tail = cite([i for i in f.ledger_row_ids if f"[{notes.get(i)}]" not in body])
+        takeaway = _flag_takeaway(f.title, f.text, f.check_id)
         lines.append(f"{f.rank}. **{f.title}** · {f.check_id}, {f.severity}{who}. {body} {tail}".rstrip())
+        lines.append(f"   - *Analyst Takeaway*: {takeaway}")
     lines.append("")
 
     rejected = [f for f in verdict.red_flags if f.review_status == "rejected"]

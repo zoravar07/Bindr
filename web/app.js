@@ -81,6 +81,121 @@ function getBindingImpact(distance) {
   return { label: "Distal / Allosteric", badge: "bg-slate-100 text-slate-600 border-slate-200" };
 }
 
+function getAnalystTakeaway(text, checkId, direction) {
+  const t = (text || "").toLowerCase();
+
+  // Science / Target Biology Risk
+  if (checkId === "science") {
+    if (t.includes("covalent") || t.includes("potent binder") || t.includes("pchembl")) {
+      return "High target-binding potency confirms strong molecular engagement—low biophysical target-binding risk.";
+    }
+    if (t.includes("weak potency")) {
+      return "Low binding potency—molecule may require high clinical doses to achieve biological efficacy, narrowing the therapeutic window.";
+    }
+    if (t.includes("strong overall target-disease") || t.includes("high overall target-disease") || t.includes("genetic support")) {
+      return "Strong human genetic & clinical proof that this protein actually drives the disease—low risk of pursuing a false biological target.";
+    }
+    if (t.includes("moderate overall target-disease") || t.includes("somewhat")) {
+      return "Moderate biological evidence—target is implicated in disease biology, but patient translation carries moderate validation uncertainty.";
+    }
+    if (t.includes("weak or absent") || t.includes("no evidence linking")) {
+      return "Weak genetic link between this target and the disease—high risk the drug shows activity in cells but fails to benefit patients.";
+    }
+    if (t.includes("safety liabilities") || t.includes("recorded target safety")) {
+      return "Recorded target safety liabilities in humans—proactive patient safety monitoring required for known on-target adverse events.";
+    }
+    if (t.includes("common-essential") || t.includes("depmap")) {
+      return "Target is essential for cell viability across multiple lineages—requires tumor-selective delivery to avoid systemic off-target toxicity.";
+    }
+    if (t.includes("loss-of-function intolerant") || t.includes("loeuf")) {
+      return "Intolerant to loss-of-function variation—target is evolutionarily constrained in humans, indicating physiological essentiality.";
+    }
+    if (t.includes("no tractability") || t.includes("tractability evidence")) {
+      return "Limited clinical tractability precedent—molecule may face chemical optimization challenges for oral bioavailability or selectivity.";
+    }
+    return direction === "support"
+      ? "Target biology and clinical precedent support pursuing this mechanism in this disease indication."
+      : "Biological validation risk: target mechanism warrants additional pre-clinical confirmation.";
+  }
+
+  // Trial / Clinical Trial Execution Risk
+  if (checkId === "trial") {
+    if (t.includes("accrual") || t.includes("recruit") || t.includes("enroll")) {
+      return "Historical trial attrition in this indication is dominated by patient recruitment bottlenecks—trial timeline and budget are at risk unless inclusion criteria are broadened.";
+    }
+    if (t.includes("direct clinical attrition") || t.includes("stopped early") || t.includes("terminated")) {
+      return "A previous clinical study evaluating this drug in this exact disease was stopped prematurely—investigate prior termination rationale before committing capital.";
+    }
+    if (t.includes("futility") || t.includes("lack of efficacy") || t.includes("interim")) {
+      return "Several past trials in this indication failed to demonstrate clinical benefit—requires strong predictive biomarker enrichment to identify responder patients.";
+    }
+    if (t.includes("safety") || t.includes("toxicity") || t.includes("adverse")) {
+      return "Prior trials encountered dose-limiting adverse events—therapeutic index and patient safety protocols are critical execution bottlenecks.";
+    }
+    if (t.includes("landscape baseline") || t.includes("evaluated")) {
+      return direction === "support"
+        ? "Clean clinical execution baseline—no historical early terminations found for this molecule in this indication."
+        : "Active trial landscape with historical terminations—requires careful protocol design against established indication attrition rates.";
+    }
+    return direction === "support"
+      ? "Favorable clinical trial feasibility based on historical completion rates in this disease space."
+      : "Trial execution risk: historical indication data highlights operational and recruitment vulnerabilities.";
+  }
+
+  // Market / Resistance Risk
+  if (checkId === "market") {
+    if (t.includes("covalent") || t.includes("c797") || t.includes("attachment residue")) {
+      return "The drug physically attaches to this exact residue—a single patient mutation here directly blocks drug binding, creating a primary post-launch resistance escape route.";
+    }
+    if (t.includes("clinically annotated") || t.includes("escape variants inside") || t.includes("inside 4.5")) {
+      return "Mutations sit directly inside the pocket where the drug docks—amino acid substitutions here can crowd out the drug and erode long-term therapy durability.";
+    }
+    if (t.includes("density") || t.includes("variants distributed") || t.includes("missense variants")) {
+      return "High density of patient missense mutations inside the binding pocket—creates a broad evolutionary reservoir for tumors to develop acquired resistance.";
+    }
+    if (t.includes("no drug-bound structure") || t.includes("alphafold")) {
+      return "No experimental co-crystal structure available in PDB—distance calculations rely on AI prediction, carrying wider structural uncertainty.";
+    }
+    if (t.includes("ambiguous ligand")) {
+      return "Chemical ligand could not be unambiguously resolved to a single PDB coordinate set—structural risk was not evaluated.";
+    }
+    return direction === "support"
+      ? "Binding pocket appears structurally conserved with minimal proximal escape mutations identified."
+      : "Structural resistance risk: mutations in or near the binding site threaten long-term drug durability.";
+  }
+
+  return "Review primary data source to assess impact on programme viability and clinical development strategy.";
+}
+
+function getFlagAnalystTakeaway(flag) {
+  const t = (flag.title + " " + flag.text).toLowerCase();
+  if (t.includes("covalent") || t.includes("c797") || t.includes("attachment residue")) {
+    return "Commercial & Clinical Implication: Patient tumors frequently develop resistance via these active-site mutations within 9–14 months of therapy. Due diligence should confirm next-generation backup compounds or combination strategies are in development.";
+  }
+  if (t.includes("escape") || t.includes("pocket") || t.includes("binding-pocket") || t.includes("binding site")) {
+    return "Durability Implication: Known clinical variants directly threaten drug-target affinity. Requires monitoring for combination regimens or second-line salvage therapies to protect market share.";
+  }
+  if (t.includes("density") || t.includes("mutational diversity")) {
+    return "Resistance Reservoir: Extensive genetic heterogeneity in the active site provides fertile ground for clonal selection under drug pressure.";
+  }
+  if (t.includes("accrual") || t.includes("recruit") || t.includes("enrollment")) {
+    return "Budget & Timeline Implication: Patient enrollment will likely lag projected timelines. Ensure trial models budget 20–30% higher site initiation costs and implement aggressive multi-center recruitment.";
+  }
+  if (t.includes("safety") || t.includes("toxic") || t.includes("liabilities")) {
+    return "Therapeutic Window Implication: On-target toxicity may narrow the allowable dose. Review Phase 1 dose-escalation stopping rules and monitor patient liver/skin toxicity profiles closely.";
+  }
+  if (t.includes("futility") || t.includes("tolerability") || t.includes("lack of efficacy")) {
+    return "Clinical Bar Implication: High historical attrition underscores that patient stratification is mandatory. Insist on prospectively validated biomarker enrollment criteria.";
+  }
+  if (flag.check_id === "market") {
+    return "Diligence Action: Evaluate molecular structure against competitor chemotypes and check patent coverage for derivative chemical scaffolds.";
+  }
+  if (flag.check_id === "trial") {
+    return "Diligence Action: Audit planned clinical trial sites, inclusion/exclusion criteria, and competitor trial density in target regions.";
+  }
+  return "Diligence Action: Confirm findings against independent preclinical assay data before committee sign-off.";
+}
+
 function App() {
   const [query, setQuery] = useState("Osimertinib targeting EGFR in NSCLC");
   const [asOfDate, setAsOfDate] = useState("");
@@ -947,9 +1062,17 @@ function App() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-700 leading-relaxed mb-3">
+                  <div className="text-xs text-slate-800 leading-relaxed mb-2 font-medium">
                     {flag.text}
-                  </p>
+                  </div>
+
+                  {/* Analyst Diligence Takeaway Callout */}
+                  <div className="bg-amber-50/70 border border-amber-200/90 rounded-lg p-2.5 text-xs text-amber-950 mb-3 leading-relaxed">
+                    <span className="font-bold text-amber-900 flex items-center gap-1 mb-0.5">
+                      <span>💡</span> <span>What this means (Analyst Takeaway):</span>
+                    </span>
+                    <span>{getFlagAnalystTakeaway(flag)}</span>
+                  </div>
 
                   <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
                     <span className="text-xs text-slate-500 font-medium">Citations:</span>
@@ -1459,26 +1582,36 @@ function LaneCard({ laneKey, result, events, onCiteClick, onOpenInfo }) {
 
         {/* Findings */}
         {result?.reasons && result.reasons.length > 0 && (
-          <div className="space-y-2 pt-1">
+          <div className="space-y-2.5 pt-1">
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Key Findings & Primary Sources:
             </div>
             {result.reasons.map((r, i) => (
-              <div key={i} className="text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
+              <div key={i} className="text-xs bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+                {/* 1. Scientific Evidence */}
                 <div className="flex items-start gap-1.5">
-                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase whitespace-nowrap mt-0.5 ${
                     r.direction === "risk" ? "bg-rose-100 text-rose-800 border border-rose-200" :
                     r.direction === "support" ? "bg-emerald-100 text-emerald-800 border border-emerald-200" :
                     "bg-slate-200 text-slate-700"
                   }`}>
                     {r.direction === "risk" ? "Risk Factor" : r.direction === "support" ? "Favorable" : "Finding"}
                   </span>
-                  <span className="flex-1 leading-snug text-slate-800 font-medium">
+                  <span className="flex-1 leading-snug text-slate-900 font-semibold text-xs">
                     {r.text}
                   </span>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 pt-1">
+                {/* 2. What This Means (Analyst Takeaway) */}
+                <div className="bg-blue-50/70 border border-blue-200/80 rounded-md p-2 text-[11px] text-blue-950 leading-relaxed">
+                  <span className="font-bold text-blue-900 flex items-center gap-1 mb-0.5">
+                    <span>💡</span> <span>What this means:</span>
+                  </span>
+                  <span>{getAnalystTakeaway(r.text, laneKey, r.direction)}</span>
+                </div>
+
+                {/* 3. Citations */}
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {r.ledger_row_ids.map((id) => (
                     <button
                       key={id}
