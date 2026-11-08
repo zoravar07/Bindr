@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pre-Mortem — Biotech Investment Diligence Triage</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧬</text></svg>">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              900: '#1e3a8a',
+            },
+            risk: {
+              high: '#f43f5e',
+              medium: '#f59e0b',
+              low: '#10b981',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18, ReactDOM 18, Babel for zero-build execution -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- 3Dmol.js for Interactive 3D Protein Structure Rendering -->
+  <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+
+  <!-- Marked for Markdown memo rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen selection:bg-blue-600 selection:text-white">
+  <div id="root">
+    <div class="flex items-center justify-center min-h-screen text-slate-400">
+      <div class="flex flex-col items-center gap-3">
+        <div class="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sm font-medium">Initializing Pre-Mortem Diligence Platform...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Script -->
+  <script type="text/babel" src="/app.js"></script>
+</body>
+</html>

@@ -29,7 +29,8 @@ from typing import Any, AsyncIterator, Literal, Mapping
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse, StreamingResponse
+from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 from core.gemini_client import GeminiClient, get_gemini
@@ -255,6 +256,41 @@ def create_app(
         except SignOffError as exc:
             raise HTTPException(409, str(exc)) from exc
         return PlainTextResponse(text, media_type="text/markdown; charset=utf-8")
+
+    @app.get("/api/eval")
+    async def get_eval() -> dict[str, Any]:
+        results_path = Path(__file__).resolve().parent.parent / "eval" / "results.json"
+        raw_results: dict[str, Any] = {}
+        if results_path.exists():
+            try:
+                raw_results = json.loads(results_path.read_text(encoding="utf-8"))
+            except Exception as err:
+                log.warning("Could not read results.json: %s", err)
+
+        from eval.cohorts import DATASET_LICENCES
+
+        licences = [
+            {
+                "dataset": lic.dataset,
+                "source": lic.source,
+                "licence": lic.licence,
+                "cutoff_enforcement": lic.cutoff_enforcement,
+                "used_by": list(lic.used_by),
+            }
+            for lic in DATASET_LICENCES
+        ]
+        return {
+            "results": raw_results,
+            "licences": licences,
+        }
+
+    web_dir = Path(__file__).resolve().parent.parent / "web"
+    if (web_dir / "index.html").exists():
+        @app.get("/", response_class=FileResponse)
+        async def serve_index() -> FileResponse:
+            return FileResponse(web_dir / "index.html")
+
+        app.mount("/", StaticFiles(directory=str(web_dir), html=True), name="web")
 
     return app
 
