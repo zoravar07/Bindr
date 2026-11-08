@@ -1,9 +1,13 @@
-# BINDR
+# 🚨 **[FINAL PITCH DECK — CLICK HERE TO VIEW (`00_FINAL_PITCH_DECK.pdf`)](./00_FINAL_PITCH_DECK.pdf)** 🚨
+
+> **📌 IMPORTANT NOTICE TO JUDGES:** An earlier incomplete slide draft was accidentally uploaded to the submission form. **Please review our [FINAL PITCH DECK (`00_FINAL_PITCH_DECK.pdf`)](./00_FINAL_PITCH_DECK.pdf)** (also readable directly in [00_FINAL_PITCH_DECK.md](./00_FINAL_PITCH_DECK.md), via [Google Slides](https://docs.google.com/presentation/d/1hgYddWLNlX_5BdYEk7FPWPkKl5xJGr5PHZ7s_Zv2g2Q/edit?usp=sharing)), and our **Live Deployed App: [https://bindr-coc2.onrender.com](https://bindr-coc2.onrender.com)**.
+
+---
+
+# Bindr
 **Biomolecular Interactions & Drug Research**
 
-Note - final pitch deck link: https://docs.google.com/presentation/d/1hgYddWLNlX_5BdYEk7FPWPkKl5xJGr5PHZ7s_Zv2g2Q/edit?usp=sharing
-
-BINDR automates pre-clinical and business development due-diligence for biotech investors and pharma M&A teams. In under 60 seconds, three specialized sub-agents stress-test any drug candidate across target biology, clinical trial execution, and 3D structural resistance to surface fatal failure modes before capital is committed.
+Bindr automates pre-clinical and business development due-diligence for biotech investors and pharma M&A teams. In under 60 seconds, three specialized sub-agents stress-test any drug candidate across target biology, clinical trial execution, and 3D structural resistance to surface fatal failure modes before capital is committed.
 
 ## Quickstart
 
@@ -23,7 +27,7 @@ All risk scores, probabilities, and 3D contact distances are computed determinis
 
 ## Evaluation & Data Licences
 
-BINDR was validated on historical cohorts using strict temporal cutoffs (`as_of`): Target Biology achieved AUROC 0.790 ($p=0.028$ vs. 0.500 baseline), Clinical Trials beat prevalence on precision@20 (0.400 vs. 0.370), and Structural Resistance achieved recall@10 of 0.500 (beating 0.158 pocket baseline across all $k$). Across a 10-asset unseen stress test, 10/10 produced valid verdicts. Full backtest tables, statistical separation tests, and our voluntary failure case (Imatinib M351T allosteric escape) are documented in [eval/EVALUATION_REPORT.md](eval/EVALUATION_REPORT.md).
+Bindr was validated on historical cohorts using strict temporal cutoffs (`as_of`): Target Biology achieved AUROC 0.790 ($p=0.028$ vs. 0.500 baseline), Clinical Trials beat prevalence on precision@20 (0.400 vs. 0.370), and Structural Resistance achieved recall@10 of 0.500 (beating 0.158 pocket baseline across all $k$). Across a 10-asset unseen stress test, 10/10 produced valid verdicts. Full backtest tables, statistical separation tests, and our voluntary failure case (Imatinib M351T allosteric escape) are documented in [eval/EVALUATION_REPORT.md](eval/EVALUATION_REPORT.md).
 
 | Source | Dataset | Licence |
 |---|---|---|
