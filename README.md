@@ -1,6 +1,8 @@
 # BINDR
 **Biomolecular Interactions & Drug Research**
 
+Note - final pitch deck link: https://docs.google.com/presentation/d/1hgYddWLNlX_5BdYEk7FPWPkKl5xJGr5PHZ7s_Zv2g2Q/edit?usp=sharing
+
 BINDR automates pre-clinical and business development due-diligence for biotech investors and pharma M&A teams. In under 60 seconds, three specialized sub-agents stress-test any drug candidate across target biology, clinical trial execution, and 3D structural resistance to surface fatal failure modes before capital is committed.
 
 ## Quickstart
