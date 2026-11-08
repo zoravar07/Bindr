@@ -127,6 +127,13 @@ def load_rejections(path: Path | str | None = None) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
+_LANE_TITLES = {
+    "science": "Target Biology & Pre-Clinical Validation",
+    "trial": "Clinical Trial Execution & Recruitment",
+    "market": "Drug Resistance & Binding Durability",
+}
+
+
 def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str:
     if verdict.is_draft:
         raise SignOffError("Memo export requires sign-off (verdict is still a draft)")
@@ -158,6 +165,10 @@ def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str
     lines.append(f"# Pre-Mortem diligence memo: {a.drug}")
     lines.append("")
     meta = [f"**Target** {a.target}", f"**Disease** {a.disease}"]
+    if a.ids:
+        id_str = ", ".join(f"{k.upper()}: {v}" for k, v in a.ids.items() if v)
+        if id_str:
+            meta.append(f"**Identifiers** {id_str}")
     if a.as_of:
         meta.append(f"**Evidence cutoff** {a.as_of.isoformat()}")
     meta.append(f"**Signed off** {verdict.signed_off_by} on {verdict.signed_off_at:%Y-%m-%d}")
@@ -167,6 +178,9 @@ def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str
     score = f"{verdict.overall_score:.2f}" if verdict.overall_score is not None else "n/a"
     lines.append(f"## Call: {verdict.overall_risk.replace('_', ' ').upper()} risk (combined score {score}, "
                  f"{verdict.overall_confidence} confidence)")
+    if verdict.primary_failure_mode:
+        primary_title = _LANE_TITLES.get(verdict.primary_failure_mode, verdict.primary_failure_mode)
+        lines.append(f"**Primary Failure Mode**: {primary_title}")
     lines.append("")
     lines.append(linkify(verdict.overall_summary))
     lines.append("")

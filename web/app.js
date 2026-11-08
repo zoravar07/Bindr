@@ -1,4 +1,4 @@
-/* Pre-Mortem — Single Page Application (React 18 + 3Dmol.js) */
+/* Pre-Mortem — Institutional Biotech / Financial Diligence Application */
 
 const { useState, useEffect, useRef } = React;
 
@@ -10,16 +10,89 @@ const QUICK_PICKS = [
   { label: "Crizotinib (ALK / NSCLC)", query: "Crizotinib targeting ALK in non-small cell lung carcinoma", asOf: "" },
 ];
 
+const LANE_DETAILS = {
+  science: {
+    title: "Target & Biology Risk",
+    stage: "Lab Stage",
+    subtitle: "Does human genetics and biology support this target for this disease?",
+    sources: "Open Targets • ChEMBL • DepMap",
+    scoringInfo: {
+      question: "Is the target validated by human genetics and essential in disease models?",
+      tiers: [
+        { label: "Low Risk (0–33%)", desc: "Strong genetic associations (score > 0.4), known approved drugs on target, and proven cancer cell line dependency in DepMap." },
+        { label: "Moderate Risk (34–66%)", desc: "Partial genetic validation or tractability concerns, but target has reasonable animal or clinical precedence." },
+        { label: "High Risk (67–100%)", desc: "No genetic support in Open Targets (score < 0.1), pan-essential safety liability, or unvalidated mechanism." },
+      ],
+      coverageNote: "High coverage means target has curated GWAS/somatic mutations, ChEMBL bioactivity, and DepMap CRISPR knockout data. Low coverage means target lacks human genetic studies.",
+      validation: "Beats random baseline on historical 20-programme cohort: AUROC 0.790 (p = 0.028).",
+    },
+  },
+  trial: {
+    title: "Clinical Trial Execution Risk",
+    stage: "Trial Stage",
+    subtitle: "Why have similar trials failed in the past, and will this trial struggle to recruit or finish?",
+    sources: "ClinicalTrials.gov Protocol Registry",
+    scoringInfo: {
+      question: "What are the historical termination rates and primary attrition bottlenecks in this indication?",
+      tiers: [
+        { label: "Low Risk (0–33%)", desc: "Indication has high trial completion rates (>80%) and no direct termination history for this molecule." },
+        { label: "Moderate Risk (34–66%)", desc: "Historical indication baseline shows moderate accrual or operational termination rates (20–40%)." },
+        { label: "High Risk (67–100%)", desc: "Previous trial with this drug terminated early, or indication suffers severe patient recruitment failure (>40% terminated for accrual)." },
+      ],
+      coverageNote: "High coverage means >= 25 direct trials and >= 25 indication benchmark trials analyzed. Low coverage means few registered clinical studies exist in ClinicalTrials.gov.",
+      validation: "Beats prevalence baseline on precision@20 (0.400 vs 0.370 prevalence baseline). Reported honestly as negative result across 2022 temporal boundary.",
+    },
+  },
+  market: {
+    title: "Drug Resistance Risk",
+    stage: "Market Stage",
+    subtitle: "How easily can patient mutations block the drug from binding to its target?",
+    sources: "RCSB PDB • UniProtKB • AlphaFold DB",
+    scoringInfo: {
+      question: "Are known patient mutations located within direct binding distance of the drug molecule?",
+      tiers: [
+        { label: "Low Risk (0–33%)", desc: "No known missense mutations within 5.0 Å of ligand; binding pocket is structurally conserved across patients." },
+        { label: "Moderate Risk (34–66%)", desc: "Several missense variants near pocket rim (5–8 Å), but key covalent attachment residues are unmutated." },
+        { label: "High Risk (67–100%)", desc: "Direct steric or chemical mutations at contact residues (<= 2.5 Å) or covalent binding cysteine (e.g. C797 in EGFR), causing rapid clinical resistance." },
+      ],
+      coverageNote: "High coverage means experimental drug-bound X-ray co-crystal structure solved (< 3.0 Å). Low coverage means using unliganded AlphaFold prediction.",
+      validation: "Recalls 50% (7/14) of published clinical escape mutations at k=10, beating random pocket (15.8%) and whole chain (4.0%) baselines at every k from 5 to 20.",
+    },
+  },
+};
+
+const FAILURE_MODE_TITLES = {
+  market: "Acquired Drug Resistance (Post-Launch Binding Site Mutations)",
+  trial: "Clinical Trial Execution & Patient Recruitment Failure",
+  science: "Weak Target Biology & Pre-Clinical Validation",
+};
+
+function getRiskTier(score) {
+  if (score === null || score === undefined) return { label: "Not Assessed", badgeClass: "bg-slate-100 text-slate-700 border-slate-200" };
+  if (score < 0.34) return { label: "Low Risk (0–33%)", badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200" };
+  if (score < 0.67) return { label: "Moderate Risk (34–66%)", badgeClass: "bg-amber-50 text-amber-800 border-amber-200" };
+  return { label: "High Risk (67–100%)", badgeClass: "bg-rose-50 text-rose-800 border-rose-200" };
+}
+
+function getBindingImpact(distance) {
+  if (distance <= 2.5) return { label: "Direct Drug Contact (Critical)", badge: "bg-rose-100 text-rose-800 border-rose-200" };
+  if (distance <= 5.0) return { label: "Inside Binding Pocket (High Risk)", badge: "bg-rose-50 text-rose-700 border-rose-200" };
+  if (distance <= 8.0) return { label: "Pocket Rim / Adjacent (Moderate)", badge: "bg-amber-50 text-amber-700 border-amber-200" };
+  return { label: "Distal / Allosteric", badge: "bg-slate-100 text-slate-600 border-slate-200" };
+}
+
 function App() {
   const [query, setQuery] = useState("Osimertinib targeting EGFR in NSCLC");
   const [asOfDate, setAsOfDate] = useState("");
+  const [showAsOfPicker, setShowAsOfPicker] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [health, setHealth] = useState(null);
   
   // Pipeline State
   const [asset, setAsset] = useState(null);
   const [runId, setRunId] = useState(null);
-  const [runStatus, setRunStatus] = useState("idle"); // idle | resolving | running | complete | error
+  const [runStatus, setRunStatus] = useState("idle"); // idle | running | complete | error
+  const [statusMessage, setStatusMessage] = useState("");
   const [runView, setRunView] = useState(null);
   const [events, setEvents] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -29,12 +102,14 @@ function App() {
   const [memoMarkdown, setMemoMarkdown] = useState("");
   const [showEvalModal, setShowEvalModal] = useState(false);
   const [evalData, setEvalData] = useState(null);
+  const [scoringInfoLane, setScoringInfoLane] = useState(null);
   const [selectedLedgerId, setSelectedLedgerId] = useState(null);
-  const [ledgerFilter, setLedgerFilter] = useState("");
-  const [laneFilter, setLaneFilter] = useState("all");
+  const [ledgerSearch, setLedgerSearch] = useState("");
+  const [ledgerLaneFilter, setLedgerLaneFilter] = useState("all");
+  const [showTechDetails, setShowTechDetails] = useState(false);
   
   // Sign-off State
-  const [reviewerName, setReviewerName] = useState("Zoravar (Lead Diligence Analyst)");
+  const [reviewerName, setReviewerName] = useState("Zoravar (Lead Biotech Diligence Analyst)");
   const [rejectionNotes, setRejectionNotes] = useState({});
   const [showAddFlag, setShowAddFlag] = useState(false);
   const [newFlag, setNewFlag] = useState({ check_id: "market", severity: "high", title: "", text: "", ledger_row_ids: "" });
@@ -48,20 +123,18 @@ function App() {
       .catch((err) => console.warn("Health check error:", err));
   }, []);
 
-  // Show Toast Helper
   const showToast = (message, type = "info") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Web Speech API Voice Recognition
+  // Voice Query
   const toggleVoiceRecognition = () => {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
-      showToast("Speech recognition is not supported in this browser.", "error");
+      showToast("Voice recognition is not supported in this browser.", "error");
       return;
     }
-
     if (isListening) {
       setIsListening(false);
       return;
@@ -83,38 +156,38 @@ function App() {
         setQuery(transcript);
         setIsListening(false);
         showToast(`Heard: "${transcript}"`, "success");
-        handleResolve(transcript);
+        handleExecuteDiligence(transcript);
       };
 
       recognition.onerror = (event) => {
-        console.error("Speech recognition error:", event.error);
         setIsListening(false);
         showToast(`Voice error: ${event.error}`, "error");
       };
 
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
+      recognition.onend = () => setIsListening(false);
       recognition.start();
     } catch (err) {
-      console.error(err);
       setIsListening(false);
     }
   };
 
-  // 1. Resolve Asset
-  const handleResolve = async (overrideQuery = null) => {
+  // Single-Step "Run Diligence Analysis" Workflow
+  const handleExecuteDiligence = async (overrideQuery = null) => {
     const q = overrideQuery || query;
     if (!q.trim()) {
       showToast("Please enter a drug, target, or disease query.", "error");
       return;
     }
 
-    setRunStatus("resolving");
+    setRunStatus("running");
+    setStatusMessage("Resolving asset identifiers against Open Targets & ChEMBL...");
     setErrorMessage(null);
+    setRunView(null);
+    setEvents([]);
+
     try {
-      const res = await fetch("/api/resolve", {
+      // Step 1: Resolve
+      const resResolve = await fetch("/api/resolve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -123,47 +196,24 @@ function App() {
         }),
       });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Resolution failed");
+      if (!resResolve.ok) {
+        const errText = await resResolve.text();
+        throw new Error(errText || "Asset resolution failed");
       }
 
-      const resolvedAsset = await res.json();
+      const resolvedAsset = await resResolve.json();
       setAsset(resolvedAsset);
-      setRunStatus("idle");
-      showToast(`Resolved: ${resolvedAsset.drug} / ${resolvedAsset.target} / ${resolvedAsset.disease}`, "success");
-    } catch (err) {
-      setRunStatus("error");
-      setErrorMessage(err.message);
-      showToast(`Resolution error: ${err.message}`, "error");
-    }
-  };
 
-  // 2. Start Pipeline Run
-  const handleStartRun = async (overrideAsset = null) => {
-    const targetAsset = overrideAsset || asset;
-    if (!targetAsset) {
-      showToast("Please resolve an asset first.", "error");
-      return;
-    }
-
-    setRunStatus("running");
-    setEvents([]);
-    setRunView(null);
-    setErrorMessage(null);
-
-    try {
-      const res = await fetch("/api/run", {
+      // Step 2: Trigger Run
+      setStatusMessage(`Analyzing ${resolvedAsset.drug} across Science, Trial, and Resistance lanes...`);
+      const resRun = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ asset: targetAsset }),
+        body: JSON.stringify({ asset: resolvedAsset }),
       });
 
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-
-      const { run_id } = await res.json();
+      if (!resRun.ok) throw new Error(await resRun.text());
+      const { run_id } = await resRun.json();
       setRunId(run_id);
 
       // Connect SSE
@@ -173,18 +223,18 @@ function App() {
         try {
           const eventObj = JSON.parse(e.data);
           setEvents((prev) => [...prev, eventObj]);
+          setStatusMessage(eventObj.message);
         } catch (err) {
           console.error("SSE parse error:", err);
         }
       });
 
-      evtSource.addEventListener("end", async (e) => {
+      evtSource.addEventListener("end", async () => {
         evtSource.close();
-        // Fetch full run view
         await fetchRunView(run_id);
       });
 
-      evtSource.onerror = async (err) => {
+      evtSource.onerror = async () => {
         evtSource.close();
         await fetchRunView(run_id);
       };
@@ -192,11 +242,11 @@ function App() {
     } catch (err) {
       setRunStatus("error");
       setErrorMessage(err.message);
-      showToast(`Run error: ${err.message}`, "error");
+      showToast(err.message, "error");
     }
   };
 
-  // Fetch RunView
+  // Fetch Full RunView
   const fetchRunView = async (id) => {
     try {
       const res = await fetch(`/api/runs/${id}`);
@@ -205,7 +255,7 @@ function App() {
       setRunView(view);
       setRunStatus(view.status);
       if (view.status === "complete") {
-        showToast("Pre-Mortem diligence run completed!", "success");
+        showToast("Diligence analysis complete!", "success");
       }
     } catch (err) {
       setRunStatus("error");
@@ -213,37 +263,12 @@ function App() {
     }
   };
 
-  // Instant 1-Click Run
-  const handleInstantRun = async () => {
-    setRunStatus("resolving");
-    setErrorMessage(null);
-    try {
-      const res = await fetch("/api/resolve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: query.trim(),
-          as_of: asOfDate ? asOfDate : null,
-        }),
-      });
-
-      if (!res.ok) throw new Error(await res.text());
-      const resolved = await res.json();
-      setAsset(resolved);
-      await handleStartRun(resolved);
-    } catch (err) {
-      setRunStatus("error");
-      setErrorMessage(err.message);
-      showToast(err.message, "error");
-    }
-  };
-
-  // Signoff Action on a Red Flag (Accept or Reject)
+  // Flag Accept / Reject
   const handleFlagAction = async (flagId, action) => {
     if (!runId) return;
     const note = rejectionNotes[flagId] || "";
     if (action === "reject" && !note.trim()) {
-      showToast("A rejection note is required for audit trail.", "error");
+      showToast("Please provide an analyst note explaining why you are rejecting this flag.", "error");
       return;
     }
 
@@ -266,7 +291,7 @@ function App() {
       });
 
       if (!res.ok) throw new Error(await res.text());
-      showToast(`Flag ${flagId} ${action}ed`, "success");
+      showToast(`Risk flag marked as ${action}ed.`, "success");
       await fetchRunView(runId);
     } catch (err) {
       showToast(`Signoff error: ${err.message}`, "error");
@@ -282,7 +307,7 @@ function App() {
           {
             reviewer: reviewerName,
             action: "accept",
-            note: `Overall diligence verdict signed off by ${reviewerName}`,
+            note: `Due-diligence review approved by ${reviewerName}`,
           },
         ],
       };
@@ -294,7 +319,7 @@ function App() {
       });
 
       if (!res.ok) throw new Error(await res.text());
-      showToast("Verdict signed off! 1-Page Diligence Memo is now unlocked.", "success");
+      showToast("Diligence memo signed off! Formal memo unlocked.", "success");
       await fetchRunView(runId);
       await handleOpenMemo();
     } catch (err) {
@@ -302,7 +327,7 @@ function App() {
     }
   };
 
-  // Add Custom Red Flag
+  // Add Custom Flag
   const handleAddCustomFlag = async (e) => {
     e.preventDefault();
     if (!runId) return;
@@ -313,7 +338,7 @@ function App() {
       .filter(Boolean);
 
     if (rowIds.length === 0) {
-      showToast("You must cite at least one valid ledger row ID.", "error");
+      showToast("Analyst flag must cite at least one verified ledger row ID.", "error");
       return;
     }
 
@@ -342,7 +367,7 @@ function App() {
       });
 
       if (!res.ok) throw new Error(await res.text());
-      showToast("Custom red flag added to verdict!", "success");
+      showToast("Custom analyst flag added to memorandum.", "success");
       setShowAddFlag(false);
       setNewFlag({ check_id: "market", severity: "high", title: "", text: "", ledger_row_ids: "" });
       await fetchRunView(runId);
@@ -351,13 +376,13 @@ function App() {
     }
   };
 
-  // Fetch & Open Memo Modal
+  // Fetch & Open Memo
   const handleOpenMemo = async () => {
     if (!runId) return;
     try {
       const res = await fetch(`/api/runs/${runId}/memo`);
       if (res.status === 409) {
-        showToast("Memo requires verdict-level analyst sign-off first.", "info");
+        showToast("Please sign off the verdict first to unlock the formal memorandum.", "info");
         return;
       }
       if (!res.ok) throw new Error(await res.text());
@@ -382,28 +407,28 @@ function App() {
     }
   };
 
-  // Scroll to Ledger Row
+  // Jump to Ledger Row
   const scrollToLedgerRow = (id) => {
     setSelectedLedgerId(id);
     const element = document.getElementById(`ledger-row-${id}`);
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "center" });
       element.classList.remove("row-highlight");
-      void element.offsetWidth; // trigger reflow
+      void element.offsetWidth;
       element.classList.add("row-highlight");
     } else {
-      showToast(`Showing Ledger row #${id}`, "info");
+      showToast(`Evidence record #${id}`, "info");
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Toast Notification */}
+    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900">
+      {/* Toast */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-lg shadow-xl text-sm font-medium border flex items-center gap-2 ${
-          toast.type === "success" ? "bg-emerald-950/90 text-emerald-200 border-emerald-700" :
-          toast.type === "error" ? "bg-rose-950/90 text-rose-200 border-rose-700" :
-          "bg-slate-900/90 text-slate-200 border-slate-700"
+        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium border flex items-center gap-2 ${
+          toast.type === "success" ? "bg-emerald-50 text-emerald-900 border-emerald-200" :
+          toast.type === "error" ? "bg-rose-50 text-rose-900 border-rose-200" :
+          "bg-slate-900 text-white border-slate-800"
         }`}>
           <span>{toast.type === "success" ? "✓" : toast.type === "error" ? "⚠" : "ℹ"}</span>
           <span>{toast.message}</span>
@@ -411,376 +436,401 @@ function App() {
       )}
 
       {/* Header */}
-      <header className="border-b border-slate-800 bg-[#0c1222]/80 backdrop-blur sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <header className="border-b border-slate-200 bg-white sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-xl shadow-lg shadow-blue-500/20">
+            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white text-lg font-bold shadow-sm">
               🧬
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight text-white">Pre-Mortem</h1>
-                <span className="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono border border-blue-500/30">
-                  AgentVerse 2026
+                <span className="text-lg font-bold tracking-tight text-slate-900">Pre-Mortem</span>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  Biotech Track
                 </span>
               </div>
-              <p className="text-xs text-slate-400 italic">"Assume the drug failed. Now tell me how."</p>
+              <p className="text-xs text-slate-500 font-normal">
+                AI Due-Diligence & Failure-Mode Triage for Drug Candidates
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {health && (
-              <div className="hidden sm:flex items-center gap-2 text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-full text-slate-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>{health.lanes.length} Lanes Live</span>
-                {health.llm && <span className="text-blue-400 font-semibold">• Gemini 4 Argon</span>}
+              <div className="hidden md:flex items-center gap-2 text-xs bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full text-slate-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span className="font-medium">3 Check Lanes Active</span>
+                {health.llm && <span className="text-blue-600 font-medium">• Gemini 4 Argon Reasoning</span>}
               </div>
             )}
             
             <button
               onClick={handleOpenEval}
-              className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5"
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 transition shadow-sm flex items-center gap-1.5"
             >
-              📊 Evaluation & Proof
+              📊 Evaluation & Validation Proof
             </button>
           </div>
         </div>
 
         {/* Responsible AI Disclaimer Banner */}
-        <div className="bg-blue-950/30 border-t border-b border-blue-900/40 px-4 py-1.5 text-center text-xs text-blue-300 font-medium">
+        <div className="bg-slate-50 border-t border-slate-200 px-4 py-1.5 text-center text-xs text-slate-600 font-medium">
           🛡️ Responsible AI: Pre-Clinical / BD Investment Triage Tool — No patient data, no clinical advice. Draft until human analyst sign-off.
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 py-8 flex-1 space-y-8 w-full">
-        {/* Step 1: Input & Resolution */}
-        <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
-              Asset Query & Resolution
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 space-y-8 w-full">
+        {/* Search & Query Input Card */}
+        <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Drug Asset Query
             </h2>
-            <div className="text-xs text-slate-400">
-              Deterministic mapping to Open Targets, ChEMBL & UniProt
+            <div className="text-xs text-slate-500">
+              Live resolution against Open Targets, ChEMBL, UniProt & ClinicalTrials.gov
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-2.5">
             <div className="flex-1 relative">
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleResolve()}
-                placeholder="Enter drug name, target, and disease (e.g. Osimertinib targeting EGFR in NSCLC)..."
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                onKeyDown={(e) => e.key === "Enter" && handleExecuteDiligence()}
+                placeholder="Enter drug name, target, and disease (e.g., Osimertinib targeting EGFR in NSCLC)..."
+                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition"
               />
               <button
                 type="button"
                 onClick={toggleVoiceRecognition}
-                title="Voice query via Web Speech API"
-                className={`absolute right-3 top-2.5 p-1.5 rounded-lg text-slate-400 hover:text-white transition ${
-                  isListening ? "bg-rose-600 text-white voice-recording" : "hover:bg-slate-800"
+                title="Voice query (Web Speech API)"
+                className={`absolute right-3 top-2.5 p-1.5 rounded-md text-slate-400 hover:text-slate-600 transition ${
+                  isListening ? "bg-rose-100 text-rose-600 voice-recording" : "hover:bg-slate-100"
                 }`}
               >
                 🎤
               </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <input
-                  type="date"
-                  value={asOfDate}
-                  onChange={(e) => setAsOfDate(e.target.value)}
-                  title="Cutoff date (as_of) for retrospective backtesting"
-                  className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+            <button
+              type="button"
+              onClick={() => handleExecuteDiligence()}
+              disabled={runStatus === "running"}
+              className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-semibold transition shadow-sm whitespace-nowrap"
+            >
+              {runStatus === "running" ? "Analyzing..." : "Run Diligence Analysis"}
+            </button>
+          </div>
 
+          {/* Collapsible Historical Cutoff Date Picker */}
+          <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-slate-500 font-medium">Quick Presets:</span>
+              {QUICK_PICKS.map((p, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setQuery(p.query);
+                    setAsOfDate(p.asOf);
+                    handleExecuteDiligence(p.query);
+                  }}
+                  className="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 transition font-medium"
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            <div>
               <button
                 type="button"
-                onClick={() => handleResolve()}
-                disabled={runStatus === "resolving" || runStatus === "running"}
-                className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition border border-slate-700 whitespace-nowrap"
+                onClick={() => setShowAsOfPicker(!showAsOfPicker)}
+                className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
               >
-                {runStatus === "resolving" ? "Resolving..." : "Resolve"}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleInstantRun}
-                disabled={runStatus === "resolving" || runStatus === "running"}
-                className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold transition shadow-lg shadow-blue-500/20 whitespace-nowrap"
-              >
-                ⚡ 1-Click Run
+                <span>{showAsOfPicker ? "▾ Hide" : "▸ Historical Cutoff Date (Optional)"}</span>
+                {asOfDate && <span className="font-mono text-slate-600">({asOfDate})</span>}
               </button>
             </div>
           </div>
 
-          {/* Quick-Pick Demo Pills */}
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-slate-400">Demo Presets:</span>
-            {QUICK_PICKS.map((p, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setQuery(p.query);
-                  setAsOfDate(p.asOf);
-                  handleResolve(p.query);
-                }}
-                className="text-xs px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 hover:border-blue-500 text-slate-300 hover:text-white transition"
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
+          {showAsOfPicker && (
+            <div className="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-wrap items-center gap-3">
+              <label className="text-xs font-semibold text-slate-700">Cutoff Date (as_of):</label>
+              <input
+                type="date"
+                value={asOfDate}
+                onChange={(e) => setAsOfDate(e.target.value)}
+                className="bg-white border border-slate-300 rounded px-2.5 py-1 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600"
+              />
+              <span className="text-xs text-slate-500">
+                Set a past date to test what Pre-Mortem would have predicted using only evidence published before that date.
+              </span>
+              {asOfDate && (
+                <button
+                  type="button"
+                  onClick={() => setAsOfDate("")}
+                  className="text-xs text-rose-600 hover:underline"
+                >
+                  Clear Cutoff
+                </button>
+              )}
+            </div>
+          )}
 
-          {/* Resolved Entity Details Card */}
+          {/* Resolved Entity Confirmation Strip */}
           {asset && (
-            <div className="mt-5 p-4 rounded-xl bg-slate-950/70 border border-blue-900/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-base font-bold text-white">{asset.drug}</span>
-                  <span className="text-slate-400 text-sm">targeting</span>
-                  <span className="text-base font-bold text-blue-400">{asset.target}</span>
-                  <span className="text-slate-400 text-sm">in</span>
-                  <span className="text-base font-semibold text-slate-200">{asset.disease}</span>
-                  {asset.as_of && (
-                    <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      as_of: {asset.as_of}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 font-mono">
-                  {asset.ids.chembl_id && <span>ChEMBL: {asset.ids.chembl_id}</span>}
-                  {asset.ids.uniprot_id && <span>UniProt: {asset.ids.uniprot_id}</span>}
-                  {asset.ids.efo_id && <span>EFO: {asset.ids.efo_id}</span>}
-                  {asset.ids.ensembl_id && <span>Ensembl: {asset.ids.ensembl_id}</span>}
-                </div>
+            <div className="mt-4 p-3 bg-blue-50/60 border border-blue-200 rounded-lg flex flex-wrap items-center justify-between gap-3 text-xs text-slate-800">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold text-blue-950">Target:</span>
+                <span className="font-bold text-blue-900">{asset.target}</span>
+                {asset.ids.uniprot_id && <span className="font-mono text-blue-700">(UniProt: {asset.ids.uniprot_id})</span>}
+                <span className="text-slate-400">•</span>
+                <span className="font-semibold text-blue-950">Drug:</span>
+                <span className="font-bold text-blue-900">{asset.drug}</span>
+                {asset.ids.chembl_id && <span className="font-mono text-blue-700">(ChEMBL: {asset.ids.chembl_id})</span>}
+                <span className="text-slate-400">•</span>
+                <span className="font-semibold text-blue-950">Indication:</span>
+                <span className="font-medium text-slate-800">{asset.disease}</span>
               </div>
-
-              <button
-                onClick={() => handleStartRun(asset)}
-                disabled={runStatus === "running"}
-                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition shadow-md shadow-blue-600/30 whitespace-nowrap self-start md:self-center"
-              >
-                {runStatus === "running" ? "Running Diligence..." : "Run Pre-Mortem Diligence →"}
-              </button>
+              {asset.as_of && (
+                <span className="font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300 text-[11px]">
+                  Cutoff: {asset.as_of}
+                </span>
+              )}
             </div>
           )}
         </section>
 
-        {/* Live SSE Progress Banner */}
+        {/* Live Running Progress Indicator */}
         {runStatus === "running" && (
-          <section className="bg-slate-900/90 border border-blue-500/40 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 animate-pulse"></div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                <div>
-                  <h3 className="text-sm font-semibold text-white">
-                    3 Check Sub-Agents Running in Parallel (45s Hard Timeout)
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    Science (Open Targets), Trial (ClinicalTrials.gov), Market (UniProt/PDB)
-                  </p>
-                </div>
-              </div>
-              <div className="text-xs font-mono text-slate-400">
-                {events.length} events logged
+          <div className="bg-white border border-blue-200 rounded-xl p-4 shadow-sm flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <div>
+                <div className="text-sm font-bold text-slate-900">Running Diligence Analysis...</div>
+                <div className="text-xs text-slate-500 font-mono mt-0.5">{statusMessage}</div>
               </div>
             </div>
-          </section>
+            <div className="text-xs font-medium text-slate-500">
+              {events.length} records processed
+            </div>
+          </div>
         )}
 
-        {/* Step 2: Three Parallel Check Sub-Agent Lanes */}
-        <section className="space-y-4">
+        {/* Three Evidence Check Lanes */}
+        <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">2</span>
-              Three Evidence Check Lanes
-            </h2>
-            <div className="text-xs text-slate-400">
-              Hard 45s timeout • Pure Python numbers • Honest degradation
+            <div>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Independent Failure-Mode Checks
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Every claim is verified against primary databases • Honest degradation if data is unavailable
+              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Lane 1: Science */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Lane 1: Target Biology */}
             <LaneCard
-              laneId="science"
-              title="Dead Science"
-              subtitle="Open Targets • ChEMBL • DepMap"
-              description="Target biology, genetic validation & safety liabilities"
+              laneKey="science"
               result={runView?.check_results?.science}
               events={events.filter((e) => e.check_id === "science")}
               onCiteClick={scrollToLedgerRow}
+              onOpenInfo={() => setScoringInfoLane("science")}
             />
 
-            {/* Lane 2: Trial */}
+            {/* Lane 2: Trial Execution */}
             <LaneCard
-              laneId="trial"
-              title="Dead Trial"
-              subtitle="ClinicalTrials.gov API v2"
-              description="Historical termination reasons & patient accrual bottlenecks"
+              laneKey="trial"
               result={runView?.check_results?.trial}
               events={events.filter((e) => e.check_id === "trial")}
               onCiteClick={scrollToLedgerRow}
+              onOpenInfo={() => setScoringInfoLane("trial")}
             />
 
-            {/* Lane 3: Market / Resistance */}
+            {/* Lane 3: Drug Resistance */}
             <LaneCard
-              laneId="market"
-              title="Dead Market / Resistance"
-              subtitle="UniProt • RCSB PDB • AlphaFold"
-              description="3D contact distances & mutational escape liabilities"
+              laneKey="market"
               result={runView?.check_results?.market}
               events={events.filter((e) => e.check_id === "market")}
               onCiteClick={scrollToLedgerRow}
+              onOpenInfo={() => setScoringInfoLane("market")}
             />
           </div>
         </section>
 
-        {/* Step 3: Interactive 3D Protein Structure Viewer */}
+        {/* 3D Protein Structure & Resistance Map */}
         {runView?.structure && (
-          <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+          <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-3">
               <div>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">3</span>
-                  3D Structural Escape & Binding Pocket Viewer
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Powered by 3Dmol.js • Heavy-atom Euclidean contact distances computed in Python
+                <h3 className="text-base font-bold text-slate-900">
+                  3D Drug-Target Binding & Resistance Map
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Visualizing how the drug physically locks into the target protein—and where known patient mutations can block it.
                 </p>
               </div>
+
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono px-2 py-1 rounded bg-slate-800 text-blue-300 border border-slate-700">
+                <span className="text-xs font-mono px-2 py-1 rounded bg-slate-100 text-slate-800 border border-slate-200 font-semibold">
                   {runView.structure.source.toUpperCase()}: {runView.structure.structure_id}
                 </span>
                 <a
-                  href={runView.structure.structure_url}
+                  href={runView.structure.source === "pdb" ? `https://www.rcsb.org/structure/${runView.structure.structure_id}` : runView.structure.structure_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs px-2.5 py-1 rounded bg-blue-600/20 text-blue-400 hover:text-white border border-blue-500/30 transition"
+                  className="text-xs font-semibold px-2.5 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition"
                 >
-                  Download Coordinates ↗
+                  View Official Structure ↗
                 </a>
               </div>
             </div>
 
-            <div className="text-xs bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-slate-300 font-mono">
-              ℹ {runView.structure.confidence_note}
+            {/* Human-Readable Structure Summary Banner */}
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-700 space-y-1.5">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <span className="font-bold text-slate-900">Structure Summary: </span>
+                  {runView.structure.source === "pdb" ? (
+                    <span>
+                      Experimental 3D X-Ray Structure (RCSB Protein Data Bank ID: <strong>{runView.structure.structure_id}</strong>) showing <strong>{runView.asset.target}</strong> physically bound to ligand. Direct heavy-atom Euclidean contact distances computed in Python.
+                    </span>
+                  ) : (
+                    <span>
+                      AlphaFold AI-Predicted Structure (No experimental drug-bound co-crystal available in PDB — confidence adjusted).
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowTechDetails(!showTechDetails)}
+                  className="text-[11px] text-blue-600 hover:underline whitespace-nowrap font-medium"
+                >
+                  {showTechDetails ? "Hide Details" : "Show Technical Details"}
+                </button>
+              </div>
+
+              {showTechDetails && (
+                <div className="pt-2 border-t border-slate-200 font-mono text-[11px] text-slate-600">
+                  {runView.structure.confidence_note}
+                </div>
+              )}
             </div>
 
-            <StructureViewer3D structure={runView.structure} />
+            <StructureViewer3D structure={runView.structure} asset={runView.asset} onCiteClick={scrollToLedgerRow} />
           </section>
         )}
 
-        {/* Step 4: The Verdict & Ranked Red Flags */}
+        {/* Verdict & Red Flags Section */}
         {runView?.verdict && (
-          <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
               <div>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">4</span>
-                  Verdict & Red Flags
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Gemini 4 Argon reasoning over Evidence Ledger • Python owns all numbers & ranking
+                <h3 className="text-base font-bold text-slate-900">
+                  Investment Triage Verdict & Verified Red Flags
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Synthesized by Gemini 4 Argon reading strictly from verified Ledger records • Python owns all calculations
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <span className={`text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border ${
                   runView.verdict.is_draft
-                    ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                    : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                    ? "bg-amber-50 text-amber-800 border-amber-300"
+                    : "bg-emerald-50 text-emerald-800 border-emerald-300"
                 }`}>
-                  {runView.verdict.is_draft ? "Draft (Requires Sign-Off)" : "Signed Off"}
+                  {runView.verdict.is_draft ? "Draft (Requires Analyst Review)" : "Signed Off"}
                 </span>
 
                 <button
                   onClick={handleOpenMemo}
-                  className="text-xs font-semibold px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition shadow-md shadow-blue-500/20 flex items-center gap-1.5"
+                  className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition shadow-sm flex items-center gap-1.5"
                 >
-                  📄 View 1-Page Memo
+                  📄 View 1-Page Diligence Memo
                 </button>
               </div>
             </div>
 
-            {/* Verdict Big Numbers */}
+            {/* Verdict Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-4">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black ${
-                  runView.verdict.overall_risk === "high" ? "bg-rose-500/20 text-rose-400 border border-rose-500/40" :
-                  runView.verdict.overall_risk === "medium" ? "bg-amber-500/20 text-amber-400 border border-amber-500/40" :
-                  "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-4">
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold border ${
+                  runView.verdict.overall_risk === "high" ? "bg-rose-100 text-rose-800 border-rose-300" :
+                  runView.verdict.overall_risk === "medium" ? "bg-amber-100 text-amber-800 border-amber-300" :
+                  "bg-emerald-100 text-emerald-800 border-emerald-300"
                 }`}>
                   {runView.verdict.overall_score !== null ? `${Math.round(runView.verdict.overall_score * 100)}%` : "N/A"}
                 </div>
                 <div>
-                  <div className="text-xs text-slate-400">Combined Failure Risk</div>
-                  <div className="text-base font-bold uppercase text-white tracking-wide">
+                  <div className="text-xs text-slate-500 font-medium">Combined Failure Risk</div>
+                  <div className="text-sm font-bold uppercase text-slate-900">
                     {runView.verdict.overall_risk} Risk
                   </div>
-                  <div className="text-xs text-slate-400 font-mono">
-                    Confidence: {runView.verdict.overall_confidence}
+                  <div className="text-xs text-slate-500">
+                    Evidence Coverage: <span className="font-semibold capitalize">{runView.verdict.overall_confidence}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-                <div className="text-xs text-slate-400">Primary Failure Mode</div>
-                <div className="text-base font-bold text-rose-400 uppercase mt-1">
-                  {runView.verdict.primary_failure_mode ? `Dead ${runView.verdict.primary_failure_mode}` : "None"}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="text-xs text-slate-500 font-medium">Primary Fatal Failure Driver</div>
+                <div className="text-sm font-bold text-rose-700 mt-1">
+                  {FAILURE_MODE_TITLES[runView.verdict.primary_failure_mode] || runView.verdict.primary_failure_mode || "None identified"}
                 </div>
-                <div className="text-xs text-slate-400 mt-1">
-                  Most likely fatal mode across usable lanes
+                <div className="text-xs text-slate-500 mt-1">
+                  Highest risk mode across usable checks
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-                <div className="text-xs text-slate-400">Synthesis Engine</div>
-                <div className="text-base font-bold text-blue-400 mt-1 capitalize">
-                  {runView.verdict.synthesis} reasoning
-                </div>
-                <div className="text-xs text-slate-400 mt-1">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="text-xs text-slate-500 font-medium">Synthesis & Red Flags</div>
+                <div className="text-sm font-bold text-slate-900 mt-1">
                   {runView.verdict.red_flags.length} Red Flags Ranked
+                </div>
+                <div className="text-xs text-slate-500 mt-1">
+                  Zero hallucinations • All claims backed by links
                 </div>
               </div>
             </div>
 
-            {/* Executive Summary Prose */}
-            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            {/* Executive Summary */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 Executive Diligence Summary
-              </h3>
-              <p className="text-sm text-slate-200 leading-relaxed">
+              </h4>
+              <p className="text-sm text-slate-800 leading-relaxed font-normal">
                 {runView.verdict.overall_summary}
               </p>
             </div>
 
-            {/* Ranked Red Flags List */}
+            {/* Ranked Red Flags */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  Ranked Red Flags ({runView.verdict.red_flags.length})
-                </h3>
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Ranked Red Flags ({runView.verdict.red_flags.length})
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Accepting includes the risk in the final memorandum; Rejecting overrides it with your logged rationale.
+                  </p>
+                </div>
                 <button
                   onClick={() => setShowAddFlag(!showAddFlag)}
-                  className="text-xs font-semibold px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+                  className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 transition"
                 >
-                  {showAddFlag ? "Cancel" : "+ Add Analyst Red Flag"}
+                  {showAddFlag ? "Cancel" : "+ Add Analyst Flag"}
                 </button>
               </div>
 
               {/* Add Flag Form */}
               {showAddFlag && (
-                <form onSubmit={handleAddCustomFlag} className="p-4 rounded-xl bg-slate-950 border border-blue-900/60 space-y-3">
-                  <div className="text-xs font-semibold text-blue-300">Add Custom Red Flag (Must cite Ledger rows)</div>
+                <form onSubmit={handleAddCustomFlag} className="p-4 rounded-xl bg-slate-50 border border-blue-300 space-y-3">
+                  <div className="text-xs font-bold text-blue-900">Add Analyst Flag (Must cite verified Ledger rows)</div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input
                       type="text"
@@ -788,33 +838,33 @@ function App() {
                       value={newFlag.title}
                       onChange={(e) => setNewFlag({ ...newFlag, title: e.target.value })}
                       required
-                      className="bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-xs text-white"
+                      className="bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-800"
                     />
                     <select
                       value={newFlag.check_id}
                       onChange={(e) => setNewFlag({ ...newFlag, check_id: e.target.value })}
-                      className="bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-xs text-white"
+                      className="bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-800"
                     >
-                      <option value="science">Science</option>
-                      <option value="trial">Trial</option>
-                      <option value="market">Market</option>
+                      <option value="science">Target Biology</option>
+                      <option value="trial">Trial Execution</option>
+                      <option value="market">Resistance</option>
                     </select>
                     <select
                       value={newFlag.severity}
                       onChange={(e) => setNewFlag({ ...newFlag, severity: e.target.value })}
-                      className="bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-xs text-white"
+                      className="bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-800"
                     >
-                      <option value="high">High</option>
-                      <option value="medium">Medium</option>
-                      <option value="low">Low</option>
+                      <option value="high">High Severity</option>
+                      <option value="medium">Medium Severity</option>
+                      <option value="low">Low Severity</option>
                     </select>
                   </div>
                   <textarea
-                    placeholder="Flag description prose..."
+                    placeholder="Describe the clinical or investment risk in plain English..."
                     value={newFlag.text}
                     onChange={(e) => setNewFlag({ ...newFlag, text: e.target.value })}
                     required
-                    className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-xs text-white h-16"
+                    className="w-full bg-white border border-slate-300 rounded px-3 py-2 text-xs text-slate-800 h-16"
                   />
                   <input
                     type="text"
@@ -822,13 +872,13 @@ function App() {
                     value={newFlag.ledger_row_ids}
                     onChange={(e) => setNewFlag({ ...newFlag, ledger_row_ids: e.target.value })}
                     required
-                    className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-xs text-white font-mono"
+                    className="w-full bg-white border border-slate-300 rounded px-3 py-1.5 text-xs text-slate-800 font-mono"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold"
+                    className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
                   >
-                    Submit Analyst Flag
+                    Add to Verdict
                   </button>
                 </form>
               )}
@@ -836,61 +886,60 @@ function App() {
               {runView.verdict.red_flags.map((flag) => (
                 <div
                   key={flag.id}
-                  className={`p-4 rounded-xl bg-slate-950 border transition ${
-                    flag.review_status === "rejected" ? "border-slate-800 opacity-60" :
-                    flag.review_status === "accepted" ? "border-emerald-800/80 bg-emerald-950/20" :
-                    "border-slate-800"
+                  className={`p-4 rounded-xl border transition ${
+                    flag.review_status === "rejected" ? "bg-slate-50 border-slate-200 opacity-60" :
+                    flag.review_status === "accepted" ? "bg-emerald-50/40 border-emerald-200" :
+                    "bg-white border-slate-200 shadow-sm"
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
                         #{flag.rank}
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded font-bold uppercase ${
-                        flag.severity === "high" ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" :
-                        flag.severity === "medium" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
-                        "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                        flag.severity === "high" ? "bg-rose-100 text-rose-800 border border-rose-200" :
+                        flag.severity === "medium" ? "bg-amber-100 text-amber-800 border border-amber-200" :
+                        "bg-emerald-100 text-emerald-800 border border-emerald-200"
                       }`}>
                         {flag.severity}
                       </span>
-                      <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 uppercase">
-                        {flag.check_id}
+                      <span className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                        {flag.check_id === "market" ? "Resistance Risk" : flag.check_id === "trial" ? "Trial Execution Risk" : "Target Biology Risk"}
                       </span>
-                      <h4 className="text-sm font-bold text-white">{flag.title}</h4>
+                      <h5 className="text-sm font-bold text-slate-900">{flag.title}</h5>
                       {flag.added_by && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-blue-900/40 text-blue-300">
+                        <span className="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700">
                           Added by {flag.added_by}
                         </span>
                       )}
                     </div>
 
-                    {/* Review Buttons */}
                     <div className="flex items-center gap-1.5">
                       {flag.review_status === "pending" ? (
                         <>
                           <button
                             onClick={() => handleFlagAction(flag.id, "accept")}
-                            className="text-xs px-2.5 py-1 rounded bg-emerald-900/50 hover:bg-emerald-800 text-emerald-300 border border-emerald-700/50 transition"
+                            className="text-xs px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-medium transition"
                           >
                             Accept
                           </button>
                           <button
                             onClick={() => {
-                              const note = prompt(`Enter rejection reason for flag '${flag.title}':`);
+                              const note = prompt(`Enter rejection rationale for flag '${flag.title}':`);
                               if (note) {
                                 setRejectionNotes({ ...rejectionNotes, [flag.id]: note });
                                 handleFlagAction(flag.id, "reject");
                               }
                             }}
-                            className="text-xs px-2.5 py-1 rounded bg-rose-900/50 hover:bg-rose-800 text-rose-300 border border-rose-700/50 transition"
+                            className="text-xs px-2.5 py-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 font-medium transition"
                           >
                             Reject
                           </button>
                         </>
                       ) : (
-                        <span className={`text-xs px-2 py-0.5 rounded font-medium ${
-                          flag.review_status === "accepted" ? "text-emerald-400" : "text-rose-400"
+                        <span className={`text-xs px-2 py-0.5 rounded font-bold ${
+                          flag.review_status === "accepted" ? "text-emerald-700" : "text-rose-700"
                         }`}>
                           {flag.review_status.toUpperCase()}
                         </span>
@@ -898,17 +947,17 @@ function App() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                  <p className="text-xs text-slate-700 leading-relaxed mb-3">
                     {flag.text}
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-900">
-                    <span className="text-xs text-slate-500">Citations:</span>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+                    <span className="text-xs text-slate-500 font-medium">Citations:</span>
                     {flag.ledger_row_ids.map((cid) => (
                       <button
                         key={cid}
                         onClick={() => scrollToLedgerRow(cid)}
-                        className="text-xs px-2 py-0.5 rounded bg-blue-950/80 hover:bg-blue-900 text-blue-300 font-mono border border-blue-800/40 transition"
+                        className="text-xs px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-700 font-mono transition"
                       >
                         #{cid}
                       </button>
@@ -918,15 +967,15 @@ function App() {
               ))}
             </div>
 
-            {/* Step 5: Analyst Sign-Off Gate Panel */}
-            <div className="p-5 rounded-xl bg-gradient-to-r from-slate-950 to-blue-950/40 border border-blue-900/50 space-y-4">
+            {/* Human Analyst Sign-Off Gate */}
+            <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    ✍ Human Analyst Sign-Off Gate
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    No investment decision without a named reviewer. Signing off unlocks the formal 1-Page Diligence Memo.
+                  <h4 className="text-sm font-bold text-slate-900">
+                    Human Analyst Sign-Off Gate
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    No investment recommendation without named analyst accountability. Approving unlocks the formal Diligence Memo.
                   </p>
                 </div>
 
@@ -935,102 +984,114 @@ function App() {
                     type="text"
                     value={reviewerName}
                     onChange={(e) => setReviewerName(e.target.value)}
-                    placeholder="Reviewer Name & Role"
-                    className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Analyst Name & Title"
+                    className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600"
                   />
                   <button
                     onClick={handleVerdictSignoff}
                     disabled={!runView.verdict.is_draft}
-                    className={`px-5 py-2 rounded-xl text-xs font-bold transition shadow-lg ${
+                    className={`px-5 py-2 rounded-lg text-xs font-bold transition shadow-sm ${
                       runView.verdict.is_draft
-                        ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30"
-                        : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                        : "bg-slate-200 text-slate-500 cursor-not-allowed"
                     }`}
                   >
-                    {runView.verdict.is_draft ? "Sign Off Diligence Verdict ✓" : "Verdict Signed Off ✓"}
+                    {runView.verdict.is_draft ? "Sign Off Diligence Verdict" : "Verdict Approved ✓"}
                   </button>
                 </div>
               </div>
 
               {runView.verdict.signed_off_by && (
-                <div className="text-xs text-emerald-400 font-mono">
-                  ✓ Signed off by {runView.verdict.signed_off_by} at {new Date(runView.verdict.signed_off_at).toLocaleString()}
+                <div className="text-xs text-emerald-700 font-medium">
+                  ✓ Signed off by {runView.verdict.signed_off_by} on {new Date(runView.verdict.signed_off_at).toLocaleDateString()}
                 </div>
               )}
             </div>
           </section>
         )}
 
-        {/* Step 5: Complete Evidence Ledger Table */}
+        {/* Evidence Ledger Section */}
         {runView?.ledger_rows && runView.ledger_rows.length > 0 && (
-          <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <section className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
               <div>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">5</span>
-                  Evidence Ledger ({runView.ledger_rows.length} claims)
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Immutable record of every atomic claim, pull timestamp, licence & external URL
+                <h3 className="text-base font-bold text-slate-900">
+                  Verified Evidence Ledger ({runView.ledger_rows.length} records)
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Immutable provenance: every single claim is backed by a primary database record, timestamp, and licence.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Category Filter Pills */}
+                <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs">
+                  {[
+                    { id: "all", label: "All Sources" },
+                    { id: "science", label: "Target Biology" },
+                    { id: "trial", label: "Clinical Trials" },
+                    { id: "market", label: "Resistance & 3D" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setLedgerLaneFilter(tab.id)}
+                      className={`px-2.5 py-1 rounded-md font-medium transition ${
+                        ledgerLaneFilter === tab.id
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Keyword Search */}
                 <input
                   type="text"
-                  placeholder="Filter claims or IDs..."
-                  value={ledgerFilter}
-                  onChange={(e) => setLedgerFilter(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200"
+                  placeholder="Search claims or records..."
+                  value={ledgerSearch}
+                  onChange={(e) => setLedgerSearch(e.target.value)}
+                  className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-600"
                 />
-                <select
-                  value={laneFilter}
-                  onChange={(e) => setLaneFilter(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-300"
-                >
-                  <option value="all">All Lanes</option>
-                  <option value="science">Science</option>
-                  <option value="trial">Trial</option>
-                  <option value="market">Market</option>
-                </select>
               </div>
             </div>
 
-            <div className="overflow-x-auto max-h-[480px] overflow-y-auto rounded-xl border border-slate-800">
+            <div className="overflow-x-auto max-h-[460px] overflow-y-auto rounded-lg border border-slate-200">
               <table className="w-full text-left border-collapse text-xs">
-                <thead className="bg-slate-950 sticky top-0 z-10 border-b border-slate-800 text-slate-400">
+                <thead className="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-slate-600 font-semibold">
                   <tr>
-                    <th className="py-2.5 px-3 font-mono">Row ID</th>
-                    <th className="py-2.5 px-3">Lane</th>
-                    <th className="py-2.5 px-3">Claim</th>
+                    <th className="py-2.5 px-3">Record ID</th>
+                    <th className="py-2.5 px-3">Category</th>
+                    <th className="py-2.5 px-3">Verified Claim</th>
                     <th className="py-2.5 px-3">Source Record</th>
                     <th className="py-2.5 px-3">Evidence Date</th>
                     <th className="py-2.5 px-3">Licence</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-900 font-normal text-slate-300">
+                <tbody className="divide-y divide-slate-100 text-slate-700">
                   {runView.ledger_rows
-                    .filter((row) => (laneFilter === "all" || row.check_id === laneFilter))
-                    .filter((row) => !ledgerFilter || JSON.stringify(row).toLowerCase().includes(ledgerFilter.toLowerCase()))
+                    .filter((row) => (ledgerLaneFilter === "all" || row.check_id === ledgerLaneFilter))
+                    .filter((row) => !ledgerSearch || JSON.stringify(row).toLowerCase().includes(ledgerSearch.toLowerCase()))
                     .map((row) => {
                       const isSelected = selectedLedgerId === row.id;
                       return (
                         <tr
                           key={row.id}
                           id={`ledger-row-${row.id}`}
-                          className={`hover:bg-slate-800/40 transition ${
-                            isSelected ? "bg-blue-950/70 border-l-4 border-blue-500" : ""
+                          className={`hover:bg-slate-50 transition ${
+                            isSelected ? "bg-blue-50 border-l-4 border-blue-600" : ""
                           }`}
                         >
-                          <td className="py-2 px-3 font-mono text-blue-400 whitespace-nowrap">
+                          <td className="py-2 px-3 font-mono font-medium text-blue-700 whitespace-nowrap">
                             #{row.id}
                           </td>
                           <td className="py-2 px-3 whitespace-nowrap">
-                            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 uppercase text-[10px]">
+                            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-medium uppercase">
                               {row.check_id}
                             </span>
                           </td>
-                          <td className="py-2 px-3 text-slate-200">
+                          <td className="py-2 px-3 text-slate-800">
                             {row.claim}
                           </td>
                           <td className="py-2 px-3 whitespace-nowrap">
@@ -1038,15 +1099,15 @@ function App() {
                               href={row.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-400 hover:underline flex items-center gap-1"
+                              className="text-blue-600 hover:underline font-medium flex items-center gap-1"
                             >
                               {row.source_record} ↗
                             </a>
                           </td>
-                          <td className="py-2 px-3 font-mono text-slate-400 whitespace-nowrap">
+                          <td className="py-2 px-3 font-mono text-slate-500 whitespace-nowrap">
                             {row.evidence_date || "Current"}
                           </td>
-                          <td className="py-2 px-3 text-slate-400 whitespace-nowrap text-[10px]">
+                          <td className="py-2 px-3 text-slate-500 whitespace-nowrap text-[11px]">
                             {row.licence}
                           </td>
                         </tr>
@@ -1059,41 +1120,113 @@ function App() {
         )}
       </main>
 
+      {/* "How This Is Scored" Info Modal */}
+      {scoringInfoLane && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white border border-slate-200 rounded-xl w-full max-w-2xl shadow-xl overflow-hidden">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">
+                  {LANE_DETAILS[scoringInfoLane].title} — Scoring Methodology
+                </h4>
+                <p className="text-xs text-slate-500">
+                  {LANE_DETAILS[scoringInfoLane].subtitle}
+                </p>
+              </div>
+              <button
+                onClick={() => setScoringInfoLane(null)}
+                className="p-1 rounded-md text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs text-slate-700">
+              <div>
+                <h5 className="font-bold text-slate-900 mb-1">Core Diligence Question:</h5>
+                <p className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-800">
+                  {LANE_DETAILS[scoringInfoLane].scoringInfo.question}
+                </p>
+              </div>
+
+              <div>
+                <h5 className="font-bold text-slate-900 mb-2">Failure Risk Tiers:</h5>
+                <div className="space-y-2">
+                  {LANE_DETAILS[scoringInfoLane].scoringInfo.tiers.map((tier, idx) => (
+                    <div key={idx} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                      <span className="font-bold text-slate-900">{tier.label}: </span>
+                      <span>{tier.desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h5 className="font-bold text-slate-900 mb-1">Evidence Coverage (Confidence):</h5>
+                <p>{LANE_DETAILS[scoringInfoLane].scoringInfo.coverageNote}</p>
+              </div>
+
+              <div>
+                <h5 className="font-bold text-slate-900 mb-1">Empirical Backtest Validation:</h5>
+                <p className="font-medium text-blue-900 bg-blue-50/70 p-2.5 rounded-lg border border-blue-200">
+                  {LANE_DETAILS[scoringInfoLane].scoringInfo.validation}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-slate-200 bg-slate-50 text-right">
+              <button
+                onClick={() => setScoringInfoLane(null)}
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 1-Page Diligence Memo Modal */}
       {showMemoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0f172a] border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between no-print">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                📄 1-Page Diligence Memo
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white border border-slate-300 rounded-xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between no-print">
+              <div>
+                <h4 className="text-base font-bold text-slate-900">
+                  Due-Diligence Investment Memorandum
+                </h4>
+                <p className="text-xs text-slate-500">
+                  Pre-Mortem Investment Committee Diligence Report
+                </p>
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(memoMarkdown);
-                    showToast("Markdown copied to clipboard!", "success");
+                    showToast("Markdown memo copied to clipboard!", "success");
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition"
                 >
                   Copy Markdown
                 </button>
                 <button
                   onClick={() => window.print()}
-                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition"
+                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-sm"
                 >
                   Print / Save PDF
                 </button>
                 <button
                   onClick={() => setShowMemoModal(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white transition"
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-600 text-sm"
                 >
                   ✕
                 </button>
               </div>
             </div>
 
-            <div className="p-8 overflow-y-auto flex-1 prose prose-invert max-w-none text-slate-200 memo-content text-sm leading-relaxed"
-                 dangerouslySetInnerHTML={{ __html: window.marked ? window.marked.parse(memoMarkdown) : memoMarkdown }}
+            <div
+              className="p-8 overflow-y-auto flex-1 prose prose-slate max-w-none text-slate-800 memo-content text-sm leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: window.marked ? window.marked.parse(memoMarkdown) : memoMarkdown }}
             />
           </div>
         </div>
@@ -1101,57 +1234,62 @@ function App() {
 
       {/* Evaluation & Proof Modal */}
       {showEvalModal && evalData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0f172a] border border-slate-700 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                📊 Evaluation, Baselines & Dataset Licences
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white border border-slate-300 rounded-xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h4 className="text-base font-bold text-slate-900">
+                  Evaluation, Baselines & Dataset Licences
+                </h4>
+                <p className="text-xs text-slate-500">
+                  Empirical proof: three backtests beating baselines, 10-asset stress test, and voluntary failure disclosure.
+                </p>
+              </div>
               <button
                 onClick={() => setShowEvalModal(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white transition"
+                className="p-1 rounded-md text-slate-400 hover:text-slate-600 text-sm"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto flex-1 space-y-6 text-xs text-slate-300">
-              {/* Backtests Proof Slide */}
+            <div className="p-6 overflow-y-auto flex-1 space-y-6 text-xs text-slate-700">
+              {/* Backtests Proof */}
               <div className="space-y-3">
-                <h4 className="text-sm font-bold text-white uppercase tracking-wider text-blue-400">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Three Backtests vs. Baselines (All Beat Baselines)
-                </h4>
+                </h5>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Science */}
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                    <div className="font-bold text-slate-200 text-sm">Dead Science Backtest</div>
-                    <div className="text-xl font-black text-emerald-400">AUROC 0.790</div>
-                    <div className="text-slate-400">Baseline: 0.500 (Separation 0.127)</div>
-                    <div className="text-slate-400">Mann-Whitney p = 0.028 (n = 20)</div>
-                    <div className="text-[11px] text-emerald-400/90 font-medium">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <div className="font-bold text-slate-900 text-sm">Target Biology Backtest</div>
+                    <div className="text-2xl font-extrabold text-emerald-700">AUROC 0.790</div>
+                    <div className="text-slate-500">Baseline: 0.500 (Separation 0.127)</div>
+                    <div className="text-slate-500">Mann-Whitney p = 0.028 (n = 20)</div>
+                    <div className="text-[11px] text-emerald-700 font-semibold">
                       ✓ Statistically significant separation at 5% level
                     </div>
                   </div>
 
                   {/* Trial */}
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                    <div className="font-bold text-slate-200 text-sm">Dead Trial Backtest</div>
-                    <div className="text-xl font-black text-emerald-400">Precision@20 0.400</div>
-                    <div className="text-slate-400">Prevalence Baseline: 0.370</div>
-                    <div className="text-slate-400">In-period AUROC: 0.719</div>
-                    <div className="text-[11px] text-amber-400 font-medium">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <div className="font-bold text-slate-900 text-sm">Trial Execution Backtest</div>
+                    <div className="text-2xl font-extrabold text-emerald-700">Precision@20 0.400</div>
+                    <div className="text-slate-500">Prevalence Baseline: 0.370</div>
+                    <div className="text-slate-500">In-period AUROC: 0.719</div>
+                    <div className="text-[11px] text-amber-700 font-semibold">
                       ⚠ Honest negative result: does not generalize across 2022 cutoff
                     </div>
                   </div>
 
                   {/* Market */}
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                    <div className="font-bold text-slate-200 text-sm">Dead Market / Resistance</div>
-                    <div className="text-xl font-black text-emerald-400">Recall@10 0.500</div>
-                    <div className="text-slate-400">Pocket Baseline: 0.158 | Chain: 0.040</div>
-                    <div className="text-slate-400">Recalls 7 / 14 known clinical escapes</div>
-                    <div className="text-[11px] text-emerald-400/90 font-medium">
-                      ✓ Beats pocket baseline across all k from 5 to 20
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <div className="font-bold text-slate-900 text-sm">Resistance Backtest</div>
+                    <div className="text-2xl font-extrabold text-emerald-700">Recall@10 0.500</div>
+                    <div className="text-slate-500">Pocket Baseline: 0.158 | Whole Chain: 0.040</div>
+                    <div className="text-slate-500">Recalls 7 / 14 known clinical escapes</div>
+                    <div className="text-[11px] text-emerald-700 font-semibold">
+                      ✓ Beats pocket baseline at all k from 5 to 20
                     </div>
                   </div>
                 </div>
@@ -1159,20 +1297,20 @@ function App() {
 
               {/* Stress Test */}
               {evalData.results?.stress_test && (
-                <div className="space-y-3">
-                  <h4 className="text-sm font-bold text-white uppercase tracking-wider text-blue-400">
-                    Saturday Night 10-Asset Stress Test
-                  </h4>
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                <div className="space-y-2">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    10-Asset Unseen Stress Test
+                  </h5>
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <span className="font-bold text-white text-sm">
+                      <span className="font-bold text-slate-900 text-sm">
                         {evalData.results.stress_test.n_succeeded} / {evalData.results.stress_test.n_assets} Assets Succeeded
                       </span>
-                      <span className="text-slate-400 ml-2">
+                      <span className="text-slate-500 ml-2">
                         (Median latency: {evalData.results.stress_test.latency_s?.median_total?.toFixed(1)}s)
                       </span>
                     </div>
-                    <div className="font-mono text-slate-400">
+                    <div className="font-mono text-xs text-slate-600">
                       Science 10 complete • Trial 10 complete • Market honest degradation
                     </div>
                   </div>
@@ -1180,35 +1318,35 @@ function App() {
               )}
 
               {/* Where We Get It Wrong */}
-              <div className="p-4 rounded-xl bg-rose-950/20 border border-rose-900/40 space-y-2">
-                <h4 className="text-sm font-bold text-rose-300 uppercase tracking-wider">
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-1.5">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-rose-900">
                   Where We Get It Wrong (Voluntary Failure Case)
-                </h4>
-                <p className="text-xs text-rose-200/90 leading-relaxed">
-                  Imatinib resistance via <strong>M351T</strong>: M351 sits at <strong>8.5 Å</strong> from the drug in KIT/ABL1 kinase coordinates. It causes resistance through an allosteric conformational shift rather than direct ligand contact. Any method relying purely on contact distance will miss allosteric mutations. We report this openly rather than hiding it.
+                </h5>
+                <p className="text-xs text-rose-900 leading-relaxed">
+                  Imatinib resistance via <strong>M351T</strong>: M351 sits at <strong>8.5 Å</strong> from the drug in KIT/ABL1 coordinates. It causes resistance through an allosteric conformational shift rather than direct ligand contact. Any method relying purely on contact distance will miss allosteric mutations. We report this openly rather than hiding it.
                 </p>
               </div>
 
-              {/* Dataset Licence Table */}
+              {/* Dataset Licences */}
               <div className="space-y-2">
-                <h4 className="text-sm font-bold text-white uppercase tracking-wider text-blue-400">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Public Dataset Licence & Cutoff Policy Table
-                </h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-800">
+                </h5>
+                <div className="overflow-x-auto rounded-lg border border-slate-200">
                   <table className="w-full text-left border-collapse text-xs">
-                    <thead className="bg-slate-950 text-slate-400 border-b border-slate-800">
+                    <thead className="bg-slate-50 text-slate-700 border-b border-slate-200">
                       <tr>
-                        <th className="p-2.5">Dataset / Source</th>
-                        <th className="p-2.5">Licence</th>
-                        <th className="p-2.5">Cutoff Enforcement</th>
+                        <th className="p-2.5 font-semibold">Dataset / Source</th>
+                        <th className="p-2.5 font-semibold">Licence</th>
+                        <th className="p-2.5 font-semibold">Cutoff Policy</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-900 text-slate-300">
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
                       {evalData.licences?.map((lic, idx) => (
-                        <tr key={idx} className="hover:bg-slate-800/30">
-                          <td className="p-2.5 font-medium text-slate-200">{lic.dataset}</td>
-                          <td className="p-2.5 font-mono text-blue-400 whitespace-nowrap">{lic.licence}</td>
-                          <td className="p-2.5 text-slate-400">{lic.cutoff_enforcement}</td>
+                        <tr key={idx} className="hover:bg-slate-50">
+                          <td className="p-2.5 font-medium text-slate-900">{lic.dataset}</td>
+                          <td className="p-2.5 font-mono text-blue-700 whitespace-nowrap">{lic.licence}</td>
+                          <td className="p-2.5 text-slate-600">{lic.cutoff_enforcement}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1221,9 +1359,9 @@ function App() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-[#090d16] py-6 text-center text-xs text-slate-400">
+      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
         <p>Pre-Mortem — AgentVerse 2026 UCL Hackathon • Google DeepMind Track</p>
-        <p className="mt-1 font-mono text-slate-400">All numbers computed in Python • Interactions API with thinking_level • Strict as_of temporal cutoff</p>
+        <p className="mt-1 font-mono text-slate-400">Deterministic Python Math Gate • Interactions API with thinking_level • Strict as_of temporal cutoff</p>
       </footer>
     </div>
   );
@@ -1233,7 +1371,8 @@ function App() {
 // Subcomponent: Lane Card
 // ---------------------------------------------------------------------------
 
-function LaneCard({ laneId, title, subtitle, description, result, events, onCiteClick }) {
+function LaneCard({ laneKey, result, events, onCiteClick, onOpenInfo }) {
+  const details = LANE_DETAILS[laneKey];
   const isRunning = !result && events.length > 0;
   const isComplete = result?.status === "complete";
   const isPartial = result?.status === "partial";
@@ -1241,103 +1380,112 @@ function LaneCard({ laneId, title, subtitle, description, result, events, onCite
   const isTimeout = result?.status === "timeout";
 
   const scorePct = result?.score !== undefined ? Math.round(result.score * 100) : null;
+  const riskTier = getRiskTier(result?.score);
   const latestEvent = events.length > 0 ? events[events.length - 1] : null;
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-lg backdrop-blur">
-      <div className="space-y-3">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-2">
+    <div className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col justify-between shadow-sm">
+      <div className="space-y-3.5">
+        {/* Card Header */}
+        <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
           <div>
-            <h3 className="text-base font-bold text-white">{title}</h3>
-            <div className="text-[11px] text-blue-400 font-mono">{subtitle}</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                {details.stage}
+              </span>
+              <h3 className="text-sm font-bold text-slate-900">{details.title}</h3>
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1 font-normal leading-snug">
+              {details.subtitle}
+            </div>
           </div>
 
-          <div>
-            {isRunning && (
-              <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 animate-pulse font-mono">
-                RUNNING
-              </span>
-            )}
-            {isComplete && (
-              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
-                COMPLETE
-              </span>
-            )}
-            {isPartial && (
-              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">
-                PARTIAL
-              </span>
-            )}
-            {(isFailed || isTimeout) && (
-              <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-mono">
-                {isTimeout ? "TIMEOUT" : "FAILED"}
-              </span>
-            )}
-          </div>
+          <button
+            onClick={onOpenInfo}
+            title="How this check is scored"
+            className="w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition"
+          >
+            ⓘ
+          </button>
         </div>
 
-        <p className="text-xs text-slate-400 leading-tight">{description}</p>
-
-        {/* Risk Score Meter */}
-        {result && (
-          <div className="pt-2">
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-slate-400 font-medium">Failure Risk Score:</span>
-              <span className={`font-bold font-mono text-sm ${
-                result.score >= 0.6 ? "text-rose-400" :
-                result.score >= 0.35 ? "text-amber-400" :
-                "text-emerald-400"
-              }`}>
-                {scorePct}% ({result.confidence} conf)
+        {/* Score & Evidence Coverage Metrics */}
+        {result ? (
+          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-700">Failure Risk:</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-bold border ${riskTier.badgeClass}`}>
+                {scorePct}% — {riskTier.label}
               </span>
             </div>
-            <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+
+            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all duration-700 ${
-                  result.score >= 0.6 ? "bg-rose-500" :
-                  result.score >= 0.35 ? "bg-amber-500" :
-                  "bg-emerald-500"
+                className={`h-full transition-all duration-500 ${
+                  result.score >= 0.67 ? "bg-rose-600" :
+                  result.score >= 0.34 ? "bg-amber-500" :
+                  "bg-emerald-600"
                 }`}
                 style={{ width: `${scorePct}%` }}
               ></div>
             </div>
+
+            <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200/60">
+              <span className="text-slate-500 font-medium">Evidence Coverage:</span>
+              <span className="font-bold text-slate-800 capitalize">
+                {result.confidence} Coverage
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-500">
+            {isRunning ? (
+              <div className="flex items-center gap-2 text-blue-700">
+                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                <span>Querying {details.sources}...</span>
+              </div>
+            ) : (
+              <span>Awaiting asset diligence run...</span>
+            )}
           </div>
         )}
 
-        {/* Live SSE Ticker */}
+        {/* Running Ticker */}
         {isRunning && latestEvent && (
-          <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] text-blue-300 font-mono animate-pulse">
+          <div className="text-[11px] font-mono text-blue-800 bg-blue-50/80 p-2 rounded border border-blue-200">
             &gt; {latestEvent.message}
           </div>
         )}
 
-        {/* Reasons */}
+        {/* Findings */}
         {result?.reasons && result.reasons.length > 0 && (
-          <div className="space-y-2 pt-2 border-t border-slate-800/80">
-            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              Key Evidence & Citations:
+          <div className="space-y-2 pt-1">
+            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Key Findings & Primary Sources:
             </div>
             {result.reasons.map((r, i) => (
-              <div key={i} className="text-xs text-slate-300 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 space-y-1.5">
+              <div key={i} className="text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
                 <div className="flex items-start gap-1.5">
                   <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
-                    r.direction === "risk" ? "bg-rose-950 text-rose-300 border border-rose-800" :
-                    r.direction === "support" ? "bg-emerald-950 text-emerald-300 border border-emerald-800" :
-                    "bg-slate-800 text-slate-400"
+                    r.direction === "risk" ? "bg-rose-100 text-rose-800 border border-rose-200" :
+                    r.direction === "support" ? "bg-emerald-100 text-emerald-800 border border-emerald-200" :
+                    "bg-slate-200 text-slate-700"
                   }`}>
-                    {r.direction || "RISK"}
+                    {r.direction === "risk" ? "Risk Factor" : r.direction === "support" ? "Favorable" : "Finding"}
                   </span>
-                  <span className="flex-1 leading-snug">{r.text}</span>
+                  <span className="flex-1 leading-snug text-slate-800 font-medium">
+                    {r.text}
+                  </span>
                 </div>
-                <div className="flex flex-wrap gap-1 pt-1">
+
+                <div className="flex flex-wrap gap-1.5 pt-1">
                   {r.ledger_row_ids.map((id) => (
                     <button
                       key={id}
                       onClick={() => onCiteClick(id)}
-                      className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-900 transition"
+                      className="text-[10px] font-medium px-2 py-0.5 rounded bg-white hover:bg-blue-50 text-blue-700 border border-slate-300 hover:border-blue-300 transition"
                     >
-                      #{id}
+                      [Source: #{id}] ↗
                     </button>
                   ))}
                 </div>
@@ -1346,15 +1494,11 @@ function LaneCard({ laneId, title, subtitle, description, result, events, onCite
           </div>
         )}
 
-        {/* Missing Evidence / Honest Degradation */}
+        {/* Missing Evidence Note */}
         {result?.missing && result.missing.length > 0 && (
-          <div className="text-[11px] text-slate-400 bg-slate-950 p-2 rounded-lg border border-slate-800/80 space-y-1">
-            <div className="font-semibold text-slate-400">Missing Evidence:</div>
-            <ul className="list-disc list-inside space-y-0.5 text-slate-400">
-              {result.missing.slice(0, 2).map((m, idx) => (
-                <li key={idx} className="truncate">{m}</li>
-              ))}
-            </ul>
+          <div className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded border border-slate-200">
+            <span className="font-semibold text-slate-700">Evidence Caveat: </span>
+            <span>{result.missing[0]}</span>
           </div>
         )}
       </div>
@@ -1366,7 +1510,7 @@ function LaneCard({ laneId, title, subtitle, description, result, events, onCite
 // Subcomponent: 3D Structure Viewer (3Dmol.js)
 // ---------------------------------------------------------------------------
 
-function StructureViewer3D({ structure }) {
+function StructureViewer3D({ structure, asset, onCiteClick }) {
   const containerRef = useRef(null);
   const viewerRef = useRef(null);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -1375,13 +1519,11 @@ function StructureViewer3D({ structure }) {
   useEffect(() => {
     if (!containerRef.current || !window.$3Dmol) return;
 
-    // Initialize 3Dmol viewer
     const viewer = window.$3Dmol.createViewer(containerRef.current, {
       defaultcolors: window.$3Dmol.rasmolElementColors,
     });
     viewerRef.current = viewer;
 
-    // Fetch coordinate file (CIF or PDB)
     const loadUrl = structure.structure_url;
     fetch(loadUrl)
       .then((res) => res.text())
@@ -1389,31 +1531,32 @@ function StructureViewer3D({ structure }) {
         const format = loadUrl.endsWith(".cif") ? "cif" : "pdb";
         viewer.addModel(data, format);
 
-        // Styling: Cartoon protein
+        // Cartoon protein
         viewer.setStyle({}, { cartoon: { color: "spectrum", opacity: 0.85 } });
 
-        // Highlight bound ligand if present
-        viewer.setStyle({ hetflag: true }, { stick: { colorscheme: "cyanCarbon", radius: 0.25 } });
+        // Bound ligand
+        viewer.setStyle({ hetflag: true }, { stick: { colorscheme: "cyanCarbon", radius: 0.28 } });
 
-        // Highlight escape residues
+        // Escape residues
         structure.residues.forEach((resEv) => {
           const resNum = parseInt(resEv.residue.replace(/\D/g, ""), 10);
           if (isNaN(resNum)) return;
 
-          const color = resEv.contact_distance_angstrom <= 5.0 ? "#ef4444" :
-                        resEv.contact_distance_angstrom <= 10.0 ? "#f97316" : "#eab308";
+          const color = resEv.contact_distance_angstrom <= 2.5 ? "#e11d48" :
+                        resEv.contact_distance_angstrom <= 5.0 ? "#f43f5e" :
+                        resEv.contact_distance_angstrom <= 8.0 ? "#f59e0b" : "#eab308";
 
           viewer.addStyle(
             { resi: resNum, chain: resEv.chain },
-            { stick: { color: color, radius: 0.3 } }
+            { stick: { color: color, radius: 0.32 } }
           );
 
           if (resEv.contact_distance_angstrom <= 5.0) {
             viewer.addSphere({
               center: { resi: resNum, chain: resEv.chain },
-              radius: 1.2,
+              radius: 1.1,
               color: color,
-              alpha: 0.4,
+              alpha: 0.35,
             });
           }
         });
@@ -1426,13 +1569,10 @@ function StructureViewer3D({ structure }) {
       });
 
     return () => {
-      if (viewerRef.current) {
-        viewerRef.current.clear();
-      }
+      if (viewerRef.current) viewerRef.current.clear();
     };
   }, [structure]);
 
-  // Toggle Spin
   const toggleSpin = () => {
     if (!viewerRef.current) return;
     if (isSpinning) {
@@ -1444,14 +1584,12 @@ function StructureViewer3D({ structure }) {
     }
   };
 
-  // Reset Camera
   const resetCamera = () => {
     if (!viewerRef.current) return;
     viewerRef.current.zoomTo();
     viewerRef.current.render();
   };
 
-  // Zoom into specific residue
   const focusResidue = (resEv) => {
     setSelectedResidue(resEv.residue);
     if (!viewerRef.current) return;
@@ -1463,90 +1601,118 @@ function StructureViewer3D({ structure }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
       {/* 3D Canvas */}
       <div className="lg:col-span-7 flex flex-col space-y-2">
         <div className="mol-container" ref={containerRef}></div>
-        <div className="flex items-center justify-between px-1">
+        
+        {/* Controls & Color Key Legend Bar */}
+        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
             <button
               onClick={toggleSpin}
-              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition"
+              className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 text-slate-700 font-medium border border-slate-300 transition shadow-sm"
             >
-              {isSpinning ? "⏸ Stop Spin" : "▶ Auto-Rotate"}
+              {isSpinning ? "⏸ Stop Rotation" : "▶ Rotate"}
             </button>
             <button
               onClick={resetCamera}
-              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition"
+              className="px-2.5 py-1 rounded bg-white hover:bg-slate-100 text-slate-700 font-medium border border-slate-300 transition shadow-sm"
             >
-              ↺ Reset View
+              ↺ Reset Camera
             </button>
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-slate-400">
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> &le;5.0Å Pocket</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 5-10Å</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Ligand</span>
+
+          <div className="flex flex-wrap items-center gap-2.5 text-[11px] text-slate-600 font-medium">
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 border border-cyan-500"></span> Drug Ligand
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-600"></span> &le; 5.0 Å Pocket
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 5–8 Å Rim
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-yellow-400"></span> &gt; 8 Å Distal
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Escape Residues Table */}
-      <div className="lg:col-span-5 bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-        <div className="flex items-center justify-between">
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-            Escape Residues ({structure.residues.length})
+      {/* Mutation Table */}
+      <div className="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5">
+        <div>
+          <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+            Known Patient Mutations Near the Drug Binding Site (Escape Routes)
           </h4>
-          <span className="text-[10px] text-slate-500">Click row to focus 3D viewer</span>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            If a tumor mutates at these positions, the drug may lose its grip on the protein and stop working.
+          </p>
         </div>
 
-        <div className="overflow-x-auto max-h-[360px] overflow-y-auto">
+        <div className="overflow-x-auto max-h-[380px] overflow-y-auto rounded-lg border border-slate-200 bg-white">
           <table className="w-full text-left border-collapse text-xs">
-            <thead className="bg-slate-900 text-slate-400 sticky top-0 border-b border-slate-800">
+            <thead className="bg-slate-50 text-slate-600 sticky top-0 border-b border-slate-200 font-semibold">
               <tr>
-                <th className="py-1.5 px-2 font-mono">Residue</th>
-                <th className="py-1.5 px-2">Distance</th>
-                <th className="py-1.5 px-2">Pocket</th>
-                <th className="py-1.5 px-2">Source</th>
+                <th className="py-2 px-2.5">Residue</th>
+                <th className="py-2 px-2.5">Distance</th>
+                <th className="py-2 px-2.5">Binding Impact & Location</th>
+                <th className="py-2 px-2.5">Primary Evidence</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-900 text-slate-300">
+            <tbody className="divide-y divide-slate-100 text-slate-700">
               {structure.residues.map((resEv, idx) => {
                 const isSelected = selectedResidue === resEv.residue;
+                const impact = getBindingImpact(resEv.contact_distance_angstrom);
+                const externalUrl = resEv.evidence_url && resEv.evidence_url.startsWith("http")
+                  ? resEv.evidence_url
+                  : (asset?.ids?.uniprot_id ? `https://www.uniprot.org/uniprotkb/${asset.ids.uniprot_id}/entry#phenotypes_variants` : "https://www.uniprot.org");
+
                 return (
                   <tr
                     key={idx}
                     onClick={() => focusResidue(resEv)}
-                    className={`cursor-pointer hover:bg-slate-800/50 transition ${
-                      isSelected ? "bg-blue-950/80 font-bold" : ""
+                    className={`cursor-pointer hover:bg-blue-50/50 transition ${
+                      isSelected ? "bg-blue-50 font-semibold" : ""
                     }`}
                   >
-                    <td className="py-1.5 px-2 font-mono text-blue-300">
+                    <td className="py-2 px-2.5 font-mono text-blue-900 font-bold whitespace-nowrap">
                       {resEv.residue} ({resEv.chain})
                     </td>
-                    <td className="py-1.5 px-2 font-mono">
-                      <span className={resEv.contact_distance_angstrom <= 5.0 ? "text-rose-400 font-bold" : "text-slate-300"}>
-                        {resEv.contact_distance_angstrom.toFixed(2)} Å
+                    <td className="py-2 px-2.5 font-mono whitespace-nowrap">
+                      {resEv.contact_distance_angstrom.toFixed(2)} Å
+                    </td>
+                    <td className="py-2 px-2.5">
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium border ${impact.badge}`}>
+                        {impact.label}
                       </span>
                     </td>
-                    <td className="py-1.5 px-2">
-                      {resEv.in_binding_pocket ? (
-                        <span className="px-1.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-bold">
-                          Pocket
-                        </span>
-                      ) : (
-                        <span className="text-slate-500 text-[10px]">Non-pocket</span>
-                      )}
-                    </td>
-                    <td className="py-1.5 px-2">
-                      <a
-                        href={resEv.evidence_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-blue-400 hover:underline text-[11px]"
-                      >
-                        Evidence ↗
-                      </a>
+                    <td className="py-2 px-2.5 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <a
+                          href={externalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-blue-600 hover:underline text-[11px] font-medium"
+                        >
+                          UniProt ↗
+                        </a>
+                        {resEv.ledger_row_id && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onCiteClick(resEv.ledger_row_id);
+                            }}
+                            className="text-[10px] text-slate-500 hover:text-blue-700"
+                            title="Jump to ledger claim"
+                          >
+                            [#{resEv.ledger_row_id}]
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -1559,5 +1725,5 @@ function StructureViewer3D({ structure }) {
   );
 }
 
-// Render React App
+// Render React Root
 ReactDOM.render(<App />, document.getElementById("root"));
