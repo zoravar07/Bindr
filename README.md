@@ -1,7 +1,4 @@
-# 🚨 **[FINAL PITCH DECK — CLICK HERE TO VIEW (`00_FINAL_PITCH_DECK.pdf`)](./00_FINAL_PITCH_DECK.pdf)** 🚨
-
-> **📌 IMPORTANT NOTICE TO JUDGES:** An earlier incomplete slide draft was accidentally uploaded to the submission form. **Please review our [FINAL PITCH DECK (`00_FINAL_PITCH_DECK.pdf`)](./00_FINAL_PITCH_DECK.pdf)** (also readable directly in [00_FINAL_PITCH_DECK.md](./00_FINAL_PITCH_DECK.md), via [Google Slides](https://docs.google.com/presentation/d/1hgYddWLNlX_5BdYEk7FPWPkKl5xJGr5PHZ7s_Zv2g2Q/edit?usp=sharing)), and our **Live Deployed App: [https://bindr-coc2.onrender.com](https://bindr-coc2.onrender.com)**.
-
+FINAL PITCH DECK: https://docs.google.com/presentation/d/1hgYddWLNlX_5BdYEk7FPWPkKl5xJGr5PHZ7s_Zv2g2Q/edit?usp=sharing
 ---
 
 # Bindr
