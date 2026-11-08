@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: bindr
+    env: docker
+    plan: free
+    dockerfilePath: Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PYTHONUNBUFFERED
+        value: "1"
