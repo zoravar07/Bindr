@@ -1,4 +1,4 @@
-# Bindr
+# BINDR
 **Biomolecular Interactions & Drug Research**
 
 Bindr automates pre-clinical and business development due-diligence for biotech investors and pharma M&A teams. In under 60 seconds, three specialized sub-agents stress-test any drug candidate across target biology, clinical trial execution, and 3D structural resistance to surface fatal failure modes before capital is committed.
