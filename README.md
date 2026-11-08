@@ -1,4 +1,4 @@
-# Bindr — Biomolecular Interactions & Drug Research
+# BINDR — Biomolecular Interactions & Drug Research
 
 > **AgentVerse 2026 Biotech Track · Best Use of Google DeepMind Gemini Prize**  
 > *Pre-clinical & business development due-diligence triage for biopharma investment teams.*
