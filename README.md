@@ -1,7 +1,7 @@
 # BINDR
 **Biomolecular Interactions & Drug Research**
 
-Bindr automates pre-clinical and business development due-diligence for biotech investors and pharma M&A teams. In under 60 seconds, three specialized sub-agents stress-test any drug candidate across target biology, clinical trial execution, and 3D structural resistance to surface fatal failure modes before capital is committed.
+BINDR automates pre-clinical and business development due-diligence for biotech investors and pharma M&A teams. In under 60 seconds, three specialized sub-agents stress-test any drug candidate across target biology, clinical trial execution, and 3D structural resistance to surface fatal failure modes before capital is committed.
 
 ## Quickstart
 
@@ -21,7 +21,7 @@ All risk scores, probabilities, and 3D contact distances are computed determinis
 
 ## Evaluation & Data Licences
 
-Bindr was validated on historical cohorts using strict temporal cutoffs (`as_of`): Target Biology achieved AUROC 0.790 ($p=0.028$ vs. 0.500 baseline), Clinical Trials beat prevalence on precision@20 (0.400 vs. 0.370), and Structural Resistance achieved recall@10 of 0.500 (beating 0.158 pocket baseline across all $k$). Across a 10-asset unseen stress test, 10/10 produced valid verdicts. Full backtest tables, statistical separation tests, and our voluntary failure case (Imatinib M351T allosteric escape) are documented in [eval/EVALUATION_REPORT.md](eval/EVALUATION_REPORT.md).
+BINDR was validated on historical cohorts using strict temporal cutoffs (`as_of`): Target Biology achieved AUROC 0.790 ($p=0.028$ vs. 0.500 baseline), Clinical Trials beat prevalence on precision@20 (0.400 vs. 0.370), and Structural Resistance achieved recall@10 of 0.500 (beating 0.158 pocket baseline across all $k$). Across a 10-asset unseen stress test, 10/10 produced valid verdicts. Full backtest tables, statistical separation tests, and our voluntary failure case (Imatinib M351T allosteric escape) are documented in [eval/EVALUATION_REPORT.md](eval/EVALUATION_REPORT.md).
 
 | Source | Dataset | Licence |
 |---|---|---|
