@@ -70,6 +70,12 @@ body {
   animation: voice-pulse-subtle 1.5s infinite;
 }
 
+.badge-nowrap {
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 /* 3Dmol viewer container */
 .mol-container {
   width: 100%;

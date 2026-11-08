@@ -181,7 +181,7 @@ def export_diligence_memo(verdict: VerdictReport, ledger: EvidenceLedger) -> str
 
     a = verdict.asset
     lines: list[str] = []
-    lines.append(f"# Pre-Mortem diligence memo: {a.drug}")
+    lines.append(f"# Bindr diligence memo: {a.drug}")
     lines.append("")
     meta = [f"**Target** {a.target}", f"**Disease** {a.disease}"]
     if a.ids:

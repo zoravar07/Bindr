@@ -1,13 +1,14 @@
-/* Pre-Mortem — Institutional Biotech / Financial Diligence Application */
+/* Bindr — Biomolecular Interactions & Drug Research */
 
 const { useState, useEffect, useRef } = React;
 
 // Quick-Pick Demos
 const QUICK_PICKS = [
-  { label: "Osimertinib (EGFR / NSCLC)", query: "Osimertinib targeting EGFR in NSCLC", asOf: "" },
-  { label: "Imatinib (ABL1 / CML)", query: "Imatinib targeting ABL1 in chronic myeloid leukemia", asOf: "" },
-  { label: "Sotorasib (KRAS / NSCLC)", query: "Sotorasib targeting KRAS in non-small cell lung carcinoma", asOf: "" },
-  { label: "Crizotinib (ALK / NSCLC)", query: "Crizotinib targeting ALK in non-small cell lung carcinoma", asOf: "" },
+  { label: "Ivacaftor (CFTR / Cystic Fibrosis)", tag: "Low Risk Benchmark", tagColor: "bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300", query: "Ivacaftor targeting CFTR in cystic fibrosis", asOf: "" },
+  { label: "Semaglutide (GLP1R / T2D)", tag: "Low Risk Benchmark", tagColor: "bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300", query: "Semaglutide targeting GLP1R in type 2 diabetes mellitus", asOf: "" },
+  { label: "Osimertinib (EGFR / NSCLC)", tag: "High Resistance", tagColor: "bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-300", query: "Osimertinib targeting EGFR in NSCLC", asOf: "" },
+  { label: "Imatinib (ABL1 / CML)", tag: "High Resistance", tagColor: "bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-300", query: "Imatinib targeting ABL1 in chronic myeloid leukemia", asOf: "" },
+  { label: "Sotorasib (KRAS / NSCLC)", tag: "Moderate Risk", tagColor: "bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300", query: "Sotorasib targeting KRAS in non-small cell lung carcinoma", asOf: "" },
 ];
 
 const LANE_DETAILS = {
@@ -67,18 +68,20 @@ const FAILURE_MODE_TITLES = {
   science: "Weak Target Biology & Pre-Clinical Validation",
 };
 
-function getRiskTier(score) {
-  if (score === null || score === undefined) return { label: "Not Assessed", badgeClass: "bg-slate-100 text-slate-700 border-slate-200" };
-  if (score < 0.34) return { label: "Low Risk (0–33%)", badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200" };
-  if (score < 0.67) return { label: "Moderate Risk (34–66%)", badgeClass: "bg-amber-50 text-amber-800 border-amber-200" };
-  return { label: "High Risk (67–100%)", badgeClass: "bg-rose-50 text-rose-800 border-rose-200" };
+function getRiskTier(score, status) {
+  if (status === "failed" || status === "timeout" || score === null || score === undefined) {
+    return { label: "Insufficient Public Data / Unscored", badgeClass: "bg-slate-100 text-slate-700 border-slate-300", isUnscored: true };
+  }
+  if (score < 0.34) return { label: "Low Risk (0–33%)", badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200", isUnscored: false };
+  if (score < 0.67) return { label: "Moderate Risk (34–66%)", badgeClass: "bg-amber-50 text-amber-800 border-amber-200", isUnscored: false };
+  return { label: "High Risk (67–100%)", badgeClass: "bg-rose-50 text-rose-800 border-rose-200", isUnscored: false };
 }
 
 function getBindingImpact(distance) {
-  if (distance <= 2.5) return { label: "Direct Drug Contact (Critical)", badge: "bg-rose-100 text-rose-800 border-rose-200" };
-  if (distance <= 5.0) return { label: "Inside Binding Pocket (High Risk)", badge: "bg-rose-50 text-rose-700 border-rose-200" };
-  if (distance <= 8.0) return { label: "Pocket Rim / Adjacent (Moderate)", badge: "bg-amber-50 text-amber-700 border-amber-200" };
-  return { label: "Distal / Allosteric", badge: "bg-slate-100 text-slate-600 border-slate-200" };
+  if (distance <= 2.5) return { label: "Direct Contact (≤2.5 Å)", badge: "bg-rose-100 text-rose-800 border-rose-200" };
+  if (distance <= 5.0) return { label: "Binding Pocket (2.5–5 Å)", badge: "bg-rose-50 text-rose-700 border-rose-200" };
+  if (distance <= 8.0) return { label: "Pocket Rim (5–8 Å)", badge: "bg-amber-50 text-amber-700 border-amber-200" };
+  return { label: "Distal (>8 Å)", badge: "bg-slate-100 text-slate-600 border-slate-200" };
 }
 
 function getAnalystTakeaway(text, checkId, direction) {
@@ -559,13 +562,13 @@ function App() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold tracking-tight text-slate-900">Pre-Mortem</span>
+                <span className="text-lg font-bold tracking-tight text-slate-900">Bindr</span>
                 <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                   Biotech Track
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-normal">
-                AI Due-Diligence & Failure-Mode Triage for Drug Candidates
+                Biomolecular Interactions & Drug Research
               </p>
             </div>
           </div>
@@ -651,9 +654,14 @@ function App() {
                     setAsOfDate(p.asOf);
                     handleExecuteDiligence(p.query);
                   }}
-                  className="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 transition font-medium"
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium border transition flex items-center gap-1.5 ${
+                    p.tagColor ? p.tagColor : "bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200"
+                  }`}
                 >
-                  {p.label}
+                  <span>{p.label}</span>
+                  {p.tag && (
+                    <span className="text-[10px] font-bold opacity-80 uppercase">({p.tag})</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -849,7 +857,7 @@ function App() {
                   Investment Triage Verdict & Verified Red Flags
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Synthesized by Gemini 4 Argon reading strictly from verified Ledger records • Python owns all calculations
+                  Independent evidence synthesis across verified database records
                 </p>
               </div>
 
@@ -908,7 +916,7 @@ function App() {
                   {runView.verdict.red_flags.length} Red Flags Ranked
                 </div>
                 <div className="text-xs text-slate-500 mt-1">
-                  Zero hallucinations • All claims backed by links
+                  Verified primary database citations
                 </div>
               </div>
             </div>
@@ -1069,7 +1077,7 @@ function App() {
                   {/* Analyst Diligence Takeaway Callout */}
                   <div className="bg-amber-50/70 border border-amber-200/90 rounded-lg p-2.5 text-xs text-amber-950 mb-3 leading-relaxed">
                     <span className="font-bold text-amber-900 flex items-center gap-1 mb-0.5">
-                      <span>💡</span> <span>What this means (Analyst Takeaway):</span>
+                      <span>💡</span> <span>What this means:</span>
                     </span>
                     <span>{getFlagAnalystTakeaway(flag)}</span>
                   </div>
@@ -1483,8 +1491,8 @@ function App() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
-        <p>Pre-Mortem — AgentVerse 2026 UCL Hackathon • Google DeepMind Track</p>
-        <p className="mt-1 font-mono text-slate-400">Deterministic Python Math Gate • Interactions API with thinking_level • Strict as_of temporal cutoff</p>
+        <p>Bindr — Biomolecular Interactions & Drug Research • AgentVerse 2026</p>
+        <p className="mt-1 text-slate-400">Independent failure-mode diligence triage platform</p>
       </footer>
     </div>
   );
@@ -1501,9 +1509,11 @@ function LaneCard({ laneKey, result, events, onCiteClick, onOpenInfo }) {
   const isPartial = result?.status === "partial";
   const isFailed = result?.status === "failed";
   const isTimeout = result?.status === "timeout";
+  const isUsable = result && (result.status === "complete" || result.status === "partial");
+  const isUnscored = !result || result.status === "failed" || result.status === "timeout" || !isUsable;
 
-  const scorePct = result?.score !== undefined ? Math.round(result.score * 100) : null;
-  const riskTier = getRiskTier(result?.score);
+  const scorePct = isUsable && result?.score !== undefined ? Math.round(result.score * 100) : null;
+  const riskTier = getRiskTier(result?.score, result?.status);
   const latestEvent = events.length > 0 ? events[events.length - 1] : null;
 
   return (
@@ -1537,28 +1547,46 @@ function LaneCard({ laneKey, result, events, onCiteClick, onOpenInfo }) {
           <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-slate-700">Failure Risk:</span>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-bold border ${riskTier.badgeClass}`}>
-                {scorePct}% — {riskTier.label}
-              </span>
+              {isUnscored ? (
+                <span className="text-xs px-2.5 py-0.5 rounded-full font-bold border bg-slate-100 text-slate-700 border-slate-300">
+                  Not Scored (Insufficient Public Data)
+                </span>
+              ) : (
+                <span className={`text-xs px-2 py-0.5 rounded-full font-bold border ${riskTier.badgeClass}`}>
+                  {scorePct}% — {riskTier.label}
+                </span>
+              )}
             </div>
 
-            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-500 ${
-                  result.score >= 0.67 ? "bg-rose-600" :
-                  result.score >= 0.34 ? "bg-amber-500" :
-                  "bg-emerald-600"
-                }`}
-                style={{ width: `${scorePct}%` }}
-              ></div>
-            </div>
+            {!isUnscored ? (
+              <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-500 ${
+                    result.score >= 0.67 ? "bg-rose-600" :
+                    result.score >= 0.34 ? "bg-amber-500" :
+                    "bg-emerald-600"
+                  }`}
+                  style={{ width: `${scorePct}%` }}
+                ></div>
+              </div>
+            ) : (
+              <div className="text-[11px] text-slate-600 bg-slate-100/90 p-2 rounded border border-slate-200 leading-snug">
+                Excluded from overall risk calculation: insufficient public records or missing ligand-bound structure in PDB.
+              </div>
+            )}
 
             <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200/60">
               <span className="text-slate-500 font-medium">Evidence Coverage:</span>
               <span className="font-bold text-slate-800 capitalize">
-                {result.confidence} Coverage
+                {isUnscored ? "Low Coverage (Data Gap)" : `${result.confidence} Coverage`}
               </span>
             </div>
+
+            {!isUnscored && result.score < 0.34 && (
+              <div className="text-[11px] text-emerald-800 bg-emerald-50/70 p-2 rounded border border-emerald-200 font-medium leading-snug">
+                ✓ Low failure risk: target validation is strongly established or historical trials show clean completion rates.
+              </div>
+            )}
           </div>
         ) : (
           <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-500">

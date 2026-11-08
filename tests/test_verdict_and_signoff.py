@@ -176,7 +176,7 @@ async def test_signoff_flow_and_memo(tmp_path):
     assert rejections[0]["evidence"][0]["id"] == "trial-1"
 
     memo = export_diligence_memo(v, ledger)
-    assert "# Pre-Mortem diligence memo: DRUGX" in memo
+    assert "# Bindr diligence memo: DRUGX" in memo
     assert "Analyst: tractable" in memo and "added by zoro" in memo
     assert "~~" in memo  # rejected flag shown struck through
     assert "https://example.org/sci-1" in memo and "https://example.org/sci-2" in memo

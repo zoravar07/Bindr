@@ -19,7 +19,7 @@ async def test_web_index_and_static_files():
         res = await c.get("/")
         assert res.status_code == 200
         assert "text/html" in res.headers["content-type"]
-        assert "Pre-Mortem" in res.text
+        assert "Bindr" in res.text
         assert "3Dmol" in res.text
 
         # Static assets

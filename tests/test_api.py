@@ -105,7 +105,7 @@ async def test_full_run_stream_signoff_and_memo(client_factory):
 
     memo = await c.get(f"/api/runs/{run_id}/memo")
     assert memo.status_code == 200 and memo.headers["content-type"].startswith("text/markdown")
-    assert "# Pre-Mortem diligence memo: DRUGX" in memo.text and "https://example.org/science" in memo.text
+    assert "# Bindr diligence memo: DRUGX" in memo.text and "https://example.org/science" in memo.text
 
     again = await c.post(f"/api/runs/{run_id}/signoff", json={"actions": [{"reviewer": "zoro", "action": "comment"}]})
     assert again.status_code == 400
